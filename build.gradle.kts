@@ -1,10 +1,9 @@
-import com.diffplug.gradle.spotless.SpotlessExtension
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.sonarqube.gradle.SonarQubeExtension
 
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.7.20"
-    id("org.jetbrains.dokka") version "1.7.20")
+    id("org.jetbrains.dokka") version "1.7.20"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     `java-library`
 }
@@ -12,21 +11,21 @@ plugins {
 group = "com.github.wadoon.keytools"
 version = "0.9"
 
-val plugin by configurations
 
-tasks.getByName<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
-    configurations = listOf(plugin)
-}
 
 repositories {
     mavenCentral()
 }
 
 val plugin by configurations.creating
+
 configurations {
     implementation.get().extendsFrom(plugin)
 }
 
+tasks.getByName<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+    configurations = listOf(plugin)
+}
 
 repositories {
     mavenCentral()
@@ -36,7 +35,6 @@ repositories {
 dependencies {
     val implementation by configurations
 
-    val plugin by configurations
     plugin(platform("org.jetbrains.kotlin:kotlin-bom"))
     plugin("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     plugin("com.github.ajalt:clikt:2.8.0")
