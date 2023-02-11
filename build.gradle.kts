@@ -2,13 +2,13 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.7.20"
+    id("org.jetbrains.kotlin.jvm") version "1.8.0"
     id("org.jetbrains.dokka") version "1.7.20"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     `java-library`
 }
 
-group = "com.github.wadoon.keytools"
+group = "io.github.wadoon"
 version = "0.9"
 
 
@@ -23,7 +23,7 @@ configurations {
     implementation.get().extendsFrom(plugin)
 }
 
-tasks.getByName<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+tasks.getByName<ShadowJar>("shadowJar") {
     configurations = listOf(plugin)
 }
 
@@ -62,7 +62,7 @@ dependencies {
     plugin("com.atlassian.commonmark:commonmark:0.17.0")
     plugin("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.17.0")
     plugin("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    plugin("com.fasterxml.jackson.core:jackson-databind:2.13.1")
+    plugin("com.fasterxml.jackson.core:jackson-databind:2.13.4.1")
     plugin("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
     plugin("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.13.1")
     plugin("org.ocpsoft.prettytime:prettytime:5.0.2.Final")
@@ -94,6 +94,6 @@ java {
     withSourcesJar()
 }
 
-tasks.withType<Javadoc>() {
+tasks.withType<Javadoc> {
     isFailOnError = false
 }
