@@ -144,7 +144,6 @@ class OSSBuiltInRuleInteraction() : BuiltInRuleInteraction() {
         return "one step simplification on" + occurenceIdentifier?.term
     }
 
-    @Throws(Exception::class)
     fun reapply(uic: WindowUserInterfaceControl, goal: Goal) {
         val oss = OneStepSimplifier()
         val pio = occurenceIdentifier!!.rebuildOn(goal)

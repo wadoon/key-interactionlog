@@ -1,6 +1,5 @@
 package org.key_project.ui.interactionlog.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import de.uka.ilkd.key.api.ProofMacroApi
 import de.uka.ilkd.key.control.InteractionListener
 import de.uka.ilkd.key.gui.MainWindow
@@ -17,38 +16,38 @@ import de.uka.ilkd.key.prover.impl.ApplyStrategyInfo
 import de.uka.ilkd.key.rule.RuleApp
 import de.uka.ilkd.key.rule.TacletApp
 import de.uka.ilkd.key.ui.AbstractMediatorUserInterfaceControl
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.key_project.ui.interactionlog.algo.LogPrinter
 import org.key_project.ui.interactionlog.api.Interaction
 import org.key_project.util.RandomName
 import org.key_project.util.collection.ImmutableSLList
 import java.awt.Color
 import java.io.File
-import java.io.Serializable
 import java.lang.ref.WeakReference
 import java.util.*
 import javax.swing.JOptionPane
 
+internal fun now(): LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
 /**
  * @author Alexander Weigl
  * @version 1 (06.12.18)
  */
-class InteractionLog {
-    @get:JsonIgnore
-    @set:JsonIgnore
-    @field:JsonIgnore
+@Serializable
+data class InteractionLog(val name: String = RandomName.getRandomName(), var created: LocalDateTime = now()) {
+    @Transient
     var proof: WeakReference<Proof> = WeakReference<Proof>(null)
 
-    @get:JsonIgnore
-    @field:JsonIgnore
+    @Transient
     val listeners = arrayListOf<() -> Unit>()
 
-    @get:JsonIgnore
-    @field:JsonIgnore
-    var savePath : File? = null
-
-    val name: String
-    var created = Date()
+    @Transient
+    var savePath: File? = null
 
     private val _interactions: MutableList<Interaction> = ArrayList()
 
@@ -60,21 +59,17 @@ class InteractionLog {
     fun remove(interaction: Interaction) = _interactions.remove(interaction)
     fun remove(index: Int) = _interactions.removeAt(index)
 
-    @JvmOverloads
-    constructor(name: String = RandomName.getRandomName()) {
-        this.name = name
+    companion object {
+        fun fromProof(proof: Proof): InteractionLog {
+            val pos = proof.name().toString().length.coerceAtMost(25)
+            val name = "${RandomName.getRandomName(" ")} (${proof.name().toString().substring(0, pos)})"
+            val a = InteractionLog(name)
+            a.proof = WeakReference(proof)
+            return a
+        }
     }
 
-    constructor(proof: Proof) {
-        val pos = Math.min(proof.name().toString().length, 25)
-        name = (RandomName.getRandomName(" ")
-                + " (" + proof.name().toString().substring(0, pos) + ")")
-        this.proof = WeakReference(proof)
-    }
-
-    override fun toString(): String {
-        return name
-    }
+    override fun toString(): String = name
 }
 
 
@@ -158,7 +153,7 @@ class MacroInteraction() : NodeInteraction() {
  * @author Alexander Weigl
  * @version 1 (06.12.18)
  */
-class NodeIdentifier() : Serializable {
+class NodeIdentifier() {
     var treePath: MutableList<Int> = ArrayList()
 
     var branchLabel: String? = null
@@ -374,13 +369,13 @@ class SettingChangeInteraction() : Interaction() {
         return (if (message != null) message!! + " : " else "") + type
     }
 
-    @Throws(Exception::class)
     override fun reapplyStrict(uic: AbstractMediatorUserInterfaceControl, goal: Goal) {
         val settings = goal.proof().settings
         when (type) {
             InteractionListener.SettingType.SMT -> settings.smtSettings.readSettings(savedSettings)
             InteractionListener.SettingType.CHOICE -> settings.choiceSettings.readSettings(savedSettings)
             InteractionListener.SettingType.STRATEGY -> settings.strategySettings.readSettings(savedSettings)
+            null -> TODO()
         }
     }
 }

@@ -1,8 +1,9 @@
 package org.key_project.ui.interactionlog
 
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
 import org.key_project.ui.interactionlog.model.InteractionLog
 import java.io.File
 
@@ -11,36 +12,35 @@ import java.io.File
  * @author Alexander Weigl
  * @version 1 (06.12.18)
  */
+@OptIn(ExperimentalSerializationApi::class)
 object InteractionLogFacade {
-
-    val mapper = ObjectMapper().apply {
-        enable(SerializationFeature.INDENT_OUTPUT)
-        findAndRegisterModules();
-        configure(JsonParser.Feature.ALLOW_COMMENTS, true)
-        configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true)
-        //it.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true)
-        //it.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true)
+    internal val config = Json {
+        prettyPrint = true
+        prettyPrintIndent = "    "
+        ignoreUnknownKeys = true
     }
-
 
     /**
      * @param inputFile
      * @return
-     * @throws JAXBException
      */
     @JvmStatic
     fun readInteractionLog(inputFile: File): InteractionLog =
-        mapper.readValue(inputFile, InteractionLog::class.java).also {
-            it.savePath = inputFile
+        inputFile.inputStream().use {
+            config.decodeFromStream<InteractionLog>(it).also { log ->
+                log.savePath = inputFile
+            }
         }
 
     /**
      * @param log
      * @param output
-     * @throws JAXBException
      */
     @JvmStatic
     fun storeInteractionLog(log: InteractionLog, output: File) {
-        mapper.writeValue(output, log)
+        val out = config.encodeToString(log)
+        output.bufferedWriter().use {
+            it.write(out)
+        }
     }
 }

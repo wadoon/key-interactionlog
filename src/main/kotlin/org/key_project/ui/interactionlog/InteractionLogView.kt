@@ -8,6 +8,7 @@ import de.uka.ilkd.key.gui.actions.KeyAction
 import de.uka.ilkd.key.gui.extension.api.TabPanel
 import de.uka.ilkd.key.gui.fonticons.*
 import de.uka.ilkd.key.proof.Proof
+import kotlinx.datetime.LocalDateTime
 import org.key_project.ui.interactionlog.algo.MUProofScriptExport
 import org.key_project.ui.interactionlog.algo.MarkdownExport
 import org.key_project.ui.interactionlog.algo.toHtml
@@ -627,3 +628,14 @@ internal class InteractionCellRenderer : JPanel(), ListCellRenderer<Interaction>
         private val COLOR_FAVOURED = Color(0xFFD373)
     }
 }
+
+private fun PrettyTime.format(created: LocalDateTime): String = format(
+    java.time.LocalDateTime.of(
+        created.year,
+        created.month,
+        created.dayOfMonth,
+        created.hour,
+        created.minute,
+        created.second
+    )
+)

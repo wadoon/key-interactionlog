@@ -41,15 +41,14 @@ class InteractionRecorder : InteractionListener, AutoModeListener {
         fireDisposeInteractionLog(log)
     }
 
-    operator fun get(proof: Proof): InteractionLog {
-        return instances.find { it.proof.get() == proof }
-                ?: InteractionLog(proof).also { il ->
-                    register(il)
-                    registerOnSettings(proof)
-                    registerDisposeListener(proof)
-                    createInitialSettingsEntry(proof)
-                }
-    }
+    operator fun get(proof: Proof): InteractionLog =
+        instances.find { it.proof.get() == proof }
+            ?: InteractionLog.fromProof(proof).also { il ->
+                register(il)
+                registerOnSettings(proof)
+                registerDisposeListener(proof)
+                createInitialSettingsEntry(proof)
+            }
 
     private fun fireNewInteractionLog(log: InteractionLog) {
         listeners.forEach { it.onNewInteractionLog(this, log) }
@@ -61,15 +60,21 @@ class InteractionRecorder : InteractionListener, AutoModeListener {
     }
 
     private fun createInitialSettingsEntry(proof: Proof) {
-        settingChanged(proof,
-                proof.settings.strategySettings,
-                InteractionListener.SettingType.STRATEGY, "Initial Config")
-        settingChanged(proof,
-                proof.settings.smtSettings,
-                InteractionListener.SettingType.SMT, "Initial Config")
-        settingChanged(proof,
-                proof.settings.choiceSettings,
-                InteractionListener.SettingType.CHOICE, "Initial Config")
+        settingChanged(
+            proof,
+            proof.settings.strategySettings,
+            InteractionListener.SettingType.STRATEGY, "Initial Config"
+        )
+        settingChanged(
+            proof,
+            proof.settings.smtSettings,
+            InteractionListener.SettingType.SMT, "Initial Config"
+        )
+        settingChanged(
+            proof,
+            proof.settings.choiceSettings,
+            InteractionListener.SettingType.CHOICE, "Initial Config"
+        )
     }
 
     private fun registerDisposeListener(proof: Proof) {
@@ -92,25 +97,36 @@ class InteractionRecorder : InteractionListener, AutoModeListener {
 
     fun registerOnSettings(proof: Proof) {
         proof.settings.strategySettings.addSettingsListener {
-            settingChanged(proof,
-                    proof.settings.strategySettings,
-                    InteractionListener.SettingType.STRATEGY, null)
+            settingChanged(
+                proof,
+                proof.settings.strategySettings,
+                InteractionListener.SettingType.STRATEGY, null
+            )
         }
 
         proof.settings.choiceSettings.addSettingsListener {
-            settingChanged(proof,
-                    proof.settings.choiceSettings,
-                    InteractionListener.SettingType.CHOICE, null)
+            settingChanged(
+                proof,
+                proof.settings.choiceSettings,
+                InteractionListener.SettingType.CHOICE, null
+            )
         }
 
         proof.settings.smtSettings.addSettingsListener {
-            settingChanged(proof,
-                    proof.settings.smtSettings,
-                    InteractionListener.SettingType.SMT, null)
+            settingChanged(
+                proof,
+                proof.settings.smtSettings,
+                InteractionListener.SettingType.SMT, null
+            )
         }
     }
 
-    override fun settingChanged(proof: Proof, settings: Settings, type: InteractionListener.SettingType, message: String?) {
+    override fun settingChanged(
+        proof: Proof,
+        settings: Settings,
+        type: InteractionListener.SettingType,
+        message: String?
+    ) {
         if (disableSettingsChanges) return
         if (isDisableAll) return
 
@@ -129,9 +145,8 @@ class InteractionRecorder : InteractionListener, AutoModeListener {
                     log.remove(log.interactions.size - 1)
                 }
             }
-
-        } catch (ex: IndexOutOfBoundsException) {
-        } catch (ex: NullPointerException) {
+        } catch (_: IndexOutOfBoundsException) {
+        } catch (_: NullPointerException) {
         }
 
         log.add(sci)
@@ -156,7 +171,8 @@ class InteractionRecorder : InteractionListener, AutoModeListener {
 
     override fun runBuiltInRule(
         node: Node, app: IBuiltInRuleApp, rule: BuiltInRule,
-        pos: PosInOccurrence, forced: Boolean) {
+        pos: PosInOccurrence, forced: Boolean
+    ) {
         if (isDisableAll) return
         val state = get(node.proof())
         val interaction = BuiltInRuleInteractionFactory.create(node, app)
