@@ -18,8 +18,6 @@ plugins {
 group = "io.github.wadoon"
 version = "0.9-SNAPSHOT"
 
-
-
 repositories {
     mavenCentral()
 }
@@ -101,6 +99,7 @@ tasks.withType<Javadoc> {
     isFailOnError = false
 }
 
+/*
 nexusPublishing {
     repositories {
         sonatype {
@@ -109,7 +108,7 @@ nexusPublishing {
         }
     }
 }
-
+*/
 
 publishing {
     publications {
