@@ -2,10 +2,10 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.8.10"
-    kotlin("plugin.serialization") version "1.8.10"
+    kotlin("jvm") version "1.8.20"
+    kotlin("plugin.serialization") version "1.8.20"
 
-    id("org.jetbrains.dokka") version "1.7.20"
+    id("org.jetbrains.dokka") version "1.8.20"
     id("com.github.johnrengelman.shadow") version "7.1.2"
 
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
@@ -17,8 +17,6 @@ plugins {
 
 group = "io.github.wadoon"
 version = "0.9-SNAPSHOT"
-
-
 
 repositories {
     mavenCentral()
@@ -101,6 +99,7 @@ tasks.withType<Javadoc> {
     isFailOnError = false
 }
 
+/*
 nexusPublishing {
     repositories {
         sonatype {
@@ -109,7 +108,7 @@ nexusPublishing {
         }
     }
 }
-
+*/
 
 publishing {
     publications {

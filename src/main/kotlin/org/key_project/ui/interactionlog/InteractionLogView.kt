@@ -353,8 +353,9 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
         override fun actionPerformed(e: ActionEvent) {
             try {
                 val current = listInteraction.selectedValue as? NodeInteraction
-                if (current != null) {
-                    val node = current.getNode(mediator.selectedProof)
+                val proof = mediator.selectedProof
+                if (current != null && proof != null) {
+                    val node = current.getNode(proof)
                     mediator.selectionModel.selectedNode = node
                 }
             } catch (ex: ClassCastException) {

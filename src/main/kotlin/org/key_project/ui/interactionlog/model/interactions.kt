@@ -117,8 +117,8 @@ class MacroInteraction() : NodeInteraction() {
             info.proof.openGoals()
         else
             ImmutableSLList.nil()
-        this.openGoalSerialNumbers = openGoals.map { g -> g.node().serialNr() }
-        this.openGoalNodeIds = openGoals.map { g -> NodeIdentifier.create(g.node()) }
+        this.openGoalSerialNumbers = openGoals.toList().map { g -> g.node().serialNr() }
+        this.openGoalNodeIds = openGoals.toList().map { g -> NodeIdentifier.create(g.node()) }
     }
 
     override fun toString(): String {
@@ -433,7 +433,7 @@ class AutoModeInteraction() : Interaction() {
         nrClosedGoals = info.closedGoals
         this.initialNodeIds = initialNodes.map { NodeIdentifier.create(it) }
         val openGoals = info.proof.openGoals()
-        this.openGoalNodeIds = openGoals.map { NodeIdentifier.create(it) }
+        this.openGoalNodeIds = openGoals.toList().map { NodeIdentifier.create(it) }
     }
 
     override fun toString(): String {
