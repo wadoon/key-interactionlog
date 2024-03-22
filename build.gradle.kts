@@ -2,13 +2,13 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.8.20"
-    kotlin("plugin.serialization") version "1.8.20"
+    kotlin("jvm") version "1.9.23"
+    kotlin("plugin.serialization") version "1.9.23"
 
-    id("org.jetbrains.dokka") version "1.8.20"
-    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("org.jetbrains.dokka") version "1.9.20"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 
-    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
+    id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
 
     `java-library`
     `maven-publish`
@@ -17,6 +17,8 @@ plugins {
 
 group = "io.github.wadoon"
 version = "0.9-SNAPSHOT"
+
+
 
 repositories {
     mavenCentral()
@@ -42,28 +44,28 @@ dependencies {
 
 
     plugin(platform("org.jetbrains.kotlin:kotlin-bom"))
-    plugin("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+    plugin("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     plugin("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     plugin("com.github.ajalt:clikt:2.8.0")
-    plugin("org.jetbrains:annotations:23.0.0")
+    plugin("org.jetbrains:annotations:24.1.0")
     plugin("com.atlassian.commonmark:commonmark:0.17.0")
     plugin("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.17.0")
-    plugin("org.ocpsoft.prettytime:prettytime:5.0.2.Final")
-    plugin("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+    plugin("org.ocpsoft.prettytime:prettytime:5.0.7.Final")
+    plugin("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
 
     //    implementation("org.key_project:key.core")
 
     val testImplementation by configurations
 
-    implementation("org.key_project:key.core:2.11.0-SNAPSHOT")
-    implementation("org.key_project:key.ui:2.11.0-SNAPSHOT")
-    implementation("org.key_project:key.util:2.11.0-SNAPSHOT")
+    implementation("org.key_project:key.core:2.11.0")
+    implementation("org.key_project:key.ui:2.11.0")
+    implementation("org.key_project:key.util:2.11.0")
 
-    testImplementation("com.google.truth:truth:1.1.3")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
-    testImplementation("org.slf4j:slf4j-simple:1.7.33")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+    testImplementation("com.google.truth:truth:1.4.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.2")
+    testImplementation("org.slf4j:slf4j-simple:2.0.12")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
 
 
 }
@@ -72,12 +74,12 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
+        jvmTarget = "21"
     }
 }
 
 tasks.withType<JavaCompile> {
-    options.release.set(17)
+    options.release.set(21)
 }
 
 tasks.withType<Test> {
@@ -99,7 +101,6 @@ tasks.withType<Javadoc> {
     isFailOnError = false
 }
 
-/*
 nexusPublishing {
     repositories {
         sonatype {
@@ -108,7 +109,7 @@ nexusPublishing {
         }
     }
 }
-*/
+
 
 publishing {
     publications {
