@@ -51,7 +51,7 @@ dependencies {
     plugin("com.atlassian.commonmark:commonmark:0.17.0")
     plugin("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.17.0")
     plugin("org.ocpsoft.prettytime:prettytime:5.0.8.Final")
-    plugin("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+    plugin("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
 
     //    implementation("org.key_project:key.core")
 
