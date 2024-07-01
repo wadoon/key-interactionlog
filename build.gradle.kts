@@ -44,13 +44,13 @@ dependencies {
 
 
     plugin(platform("org.jetbrains.kotlin:kotlin-bom"))
-    plugin("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
+    plugin("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
     plugin("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     plugin("com.github.ajalt:clikt:2.8.0")
     plugin("org.jetbrains:annotations:24.1.0")
     plugin("com.atlassian.commonmark:commonmark:0.17.0")
     plugin("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.17.0")
-    plugin("org.ocpsoft.prettytime:prettytime:5.0.8.Final")
+    plugin("org.ocpsoft.prettytime:prettytime:5.0.9.Final")
     plugin("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
 
     //    implementation("org.key_project:key.core")
@@ -61,11 +61,11 @@ dependencies {
     implementation("org.key_project:key.ui:2.11.0")
     implementation("org.key_project:key.util:2.11.0")
 
-    testImplementation("com.google.truth:truth:1.4.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.2")
+    testImplementation("com.google.truth:truth:1.4.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.3")
     testImplementation("org.slf4j:slf4j-simple:2.0.13")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.3")
 
 
 }
