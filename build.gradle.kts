@@ -2,8 +2,8 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "2.0.10"
-    kotlin("plugin.serialization") version "2.0.10"
+    kotlin("jvm") version "2.0.20"
+    kotlin("plugin.serialization") version "2.0.20"
 
     id("org.jetbrains.dokka") version "1.9.20"
     id("com.github.johnrengelman.shadow") version "8.1.1"
@@ -51,7 +51,7 @@ dependencies {
     plugin("com.atlassian.commonmark:commonmark:0.17.0")
     plugin("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.17.0")
     plugin("org.ocpsoft.prettytime:prettytime:5.0.9.Final")
-    plugin("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
+    plugin("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
 
     //    implementation("org.key_project:key.core")
 
