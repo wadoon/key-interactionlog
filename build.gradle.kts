@@ -62,10 +62,10 @@ dependencies {
     implementation("org.key_project:key.util:2.11.0")
 
     testImplementation("com.google.truth:truth:1.4.4")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.1")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.11.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.11.2")
     testImplementation("org.slf4j:slf4j-simple:2.0.16")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.2")
 
 
 }
