@@ -2,8 +2,8 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "2.0.20"
-    kotlin("plugin.serialization") version "2.0.20"
+    kotlin("jvm") version "2.0.21"
+    kotlin("plugin.serialization") version "2.0.21"
 
     id("org.jetbrains.dokka") version "1.9.20"
     id("com.github.johnrengelman.shadow") version "8.1.1"
@@ -47,7 +47,7 @@ dependencies {
     plugin("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     plugin("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     plugin("com.github.ajalt:clikt:2.8.0")
-    plugin("org.jetbrains:annotations:25.0.0")
+    plugin("org.jetbrains:annotations:26.0.1")
     plugin("com.atlassian.commonmark:commonmark:0.17.0")
     plugin("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.17.0")
     plugin("org.ocpsoft.prettytime:prettytime:5.0.9.Final")
@@ -62,10 +62,10 @@ dependencies {
     implementation("org.key_project:key.util:2.11.0")
 
     testImplementation("com.google.truth:truth:1.4.4")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.1")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.11.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.11.2")
     testImplementation("org.slf4j:slf4j-simple:2.0.16")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.2")
 
 
 }
