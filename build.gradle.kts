@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -12,7 +13,7 @@ plugins {
 
     `java-library`
     `maven-publish`
-    `signing`
+    signing
 }
 
 group = "io.github.wadoon"
@@ -53,33 +54,28 @@ dependencies {
     plugin("org.ocpsoft.prettytime:prettytime:5.0.9.Final")
     plugin("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
 
-    //    implementation("org.key_project:key.core")
-
     val testImplementation by configurations
-
-    implementation("org.key_project:key.core:2.11.0")
-    implementation("org.key_project:key.ui:2.11.0")
-    implementation("org.key_project:key.util:2.11.0")
+    implementation("org.key-project:key.core:2.12.3")
+    implementation("org.key-project:key.ui:2.12.3")
+    implementation("org.key-project:key.util:2.12.3")
 
     testImplementation("com.google.truth:truth:1.4.4")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.11.4")
     testImplementation("org.slf4j:slf4j-simple:2.0.16")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.4")
-
-
 }
 
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions {
+    compilerOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "11"
+        jvmTarget = JvmTarget.JVM_21
     }
 }
 
 tasks.withType<JavaCompile> {
-    options.release.set(11)
+    options.release.set(21)
 }
 
 tasks.withType<Test> {
@@ -141,3 +137,14 @@ publishing {
     }
 }
 
+dokka {
+    moduleName.set("Project Name")
+    dokkaSourceSets.main {
+        sourceLink {
+            localDirectory.set(file("src/main/kotlin"))
+            remoteUrl("https://example.com/src")
+            remoteLineSuffix.set("#L")
+        }
+    }
+    pluginsConfiguration.html {}
+}

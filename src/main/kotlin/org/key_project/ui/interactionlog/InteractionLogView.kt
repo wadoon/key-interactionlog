@@ -53,7 +53,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
     val interactionListModel = DefaultListModel<Interaction>()
 
     private var currentProof: Proof? = interactionLog.proof.get()
-    private var fileChooser: JFileChooser = JFileChooser()
+    private val fileChooser: JFileChooser = JFileChooser()
     private val lblCurrentProof = JLabel(currentProof?.name().toString())
 
     init {
@@ -179,9 +179,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
 
     private fun getFileChooser(): JFileChooser {
         if (currentProof != null) {
-            val file = currentProof!!.proofFile
-            if (file != null)
-                fileChooser.currentDirectory = file.parentFile
+            fileChooser.currentDirectory = currentProof?.proofFile?.parentFile
         }
         return fileChooser
     }
@@ -328,8 +326,8 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
     private inner class ToggleFavouriteAction() : KeyAction() {
         init {
             name = "Toggle Fav"
-            putValue(Action.MNEMONIC_KEY, KeyEvent.VK_F)
-            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK))
+            putValue(MNEMONIC_KEY, KeyEvent.VK_F)
+            putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK))
             setIcon(ICON_TOGGLE_FAVOURITE.get(SMALL_ICON_SIZE))
             menuPath = MENU_ILOG
             lookupAcceleratorKey()
@@ -345,7 +343,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
     private inner class JumpIntoTreeAction() : KeyAction() {
         init {
             name = "Jump into tree"
-            putValue(Action.SMALL_ICON, JUMP_INTO_TREE.get())
+            putValue(SMALL_ICON, JUMP_INTO_TREE.get())
             menuPath = MENU_ILOG
             lookupAcceleratorKey()
         }
@@ -354,10 +352,12 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
             try {
                 val current = listInteraction.selectedValue as? NodeInteraction
                 if (current != null) {
-                    val node = current.getNode(mediator.selectedProof)
-                    mediator.selectionModel.selectedNode = node
+                    mediator.selectedProof?.let {
+                        val node = current.getNode(it)
+                        mediator.selectionModel.selectedNode = node
+                    }
                 }
-            } catch (ex: ClassCastException) {
+            } catch (_: ClassCastException) {
                 //ignore
             }
 
@@ -366,8 +366,8 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
 
     private inner class TryReapplyAction() : KeyAction() {
         init {
-            putValue(Action.NAME, "Re-apply action")
-            putValue(Action.SMALL_ICON, INTERLOG_TRY_APPLY.get())
+            putValue(NAME, "Re-apply action")
+            putValue(SMALL_ICON, INTERLOG_TRY_APPLY.get())
             menuPath = MENU_ILOG
             lookupAcceleratorKey()
         }
@@ -378,7 +378,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
                 //Reapplication should be ignored by the logging.
                 InteractionLogExt.disableLogging()
                 inter.reapplyStrict(mediator.ui, mediator.selectedGoal)
-            } catch (ex: UnsupportedOperationException) {
+            } catch (_: UnsupportedOperationException) {
                 JOptionPane.showMessageDialog(
                     null,
                     String.format(
@@ -409,7 +409,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
     private inner class ExportKPSAction : AbstractFileSaveAction() {
         init {
             name = "Export as KPS …"
-            putValue(Action.SHORT_DESCRIPTION, "Export the current log into the KPS format.")
+            putValue(SHORT_DESCRIPTION, "Export the current log into the KPS format.")
             setIcon(INTERLOG_EXPORT_KPS.get())
             menuPath = MENU_ILOG_EXPORT
             lookupAcceleratorKey()
@@ -428,7 +428,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
     private inner class ExportMarkdownAction : AbstractFileSaveAction() {
         init {
             name = "Export as markdown …"
-            putValue(Action.SHORT_DESCRIPTION, "Export the current log into a markdown file.")
+            putValue(SHORT_DESCRIPTION, "Export the current log into a markdown file.")
             setIcon(ICON_MARKDOWN.get(SMALL_ICON_SIZE))
             menuPath = MENU_ILOG_EXPORT
             lookupAcceleratorKey()
@@ -447,7 +447,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
     private inner class ShowExtendedActionsAction : KeyAction() {
         init {
             name = "More …"
-            putValue(Action.SHORT_DESCRIPTION, "Shows further options")
+            putValue(SHORT_DESCRIPTION, "Shows further options")
             setIcon(INTERLOW_EXTENDED_ACTIONS.get())
             lookupAcceleratorKey()
         }
@@ -463,9 +463,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
         override fun actionPerformed(e: ActionEvent) {
             val btn = e.source as JComponent
             val menu = createMenu()
-            //val pi = MouseInfo.getPointerInfo()
             menu.show(btn, 0, 0)
-            //pi.getLocation().x, pi.getLocation().y);
         }
     }
 
@@ -570,8 +568,6 @@ internal class InteractionCellRenderer : JPanel(), ListCellRenderer<Interaction>
         isSelected: Boolean,
         cellHasFocus: Boolean
     ): Component {
-        //df.format(value.created)
-
         lblText.text = value.toString()
         lblIconRight.text = prettyTime.format(value.created)
         lblIconRight.icon = if (value.isFavoured) iconHeart else null
@@ -624,7 +620,6 @@ internal class InteractionCellRenderer : JPanel(), ListCellRenderer<Interaction>
     }
 
     companion object {
-        //private val df = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         private val COLOR_FAVOURED = Color(0xFFD373)
     }
 }
