@@ -45,7 +45,7 @@ dependencies {
 
 
     plugin(platform("org.jetbrains.kotlin:kotlin-bom"))
-    plugin("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    plugin("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
     plugin("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     plugin("com.github.ajalt:clikt:2.8.0")
     plugin("org.jetbrains:annotations:26.0.1")
