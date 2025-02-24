@@ -52,7 +52,7 @@ dependencies {
     plugin("com.atlassian.commonmark:commonmark:0.17.0")
     plugin("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.17.0")
     plugin("org.ocpsoft.prettytime:prettytime:5.0.9.Final")
-    plugin("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
+    plugin("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
 
     val testImplementation by configurations
     implementation("org.key-project:key.core:2.12.3")
@@ -60,10 +60,10 @@ dependencies {
     implementation("org.key-project:key.util:2.12.3")
 
     testImplementation("com.google.truth:truth:1.4.4")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.11.4")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.12.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.12.0")
     testImplementation("org.slf4j:slf4j-simple:2.0.16")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.4")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.12.0")
 }
 
 
