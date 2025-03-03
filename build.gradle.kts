@@ -62,7 +62,7 @@ dependencies {
     testImplementation("com.google.truth:truth:1.4.4")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.12.0")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.12.0")
-    testImplementation("org.slf4j:slf4j-simple:2.0.16")
+    testImplementation("org.slf4j:slf4j-simple:2.0.17")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.12.0")
 }
 
