@@ -1,4 +1,4 @@
-package org.key_project.ui.interactionlog
+package io.github.wadoon.key.interactionlog
 
 import de.uka.ilkd.key.control.AutoModeListener
 import de.uka.ilkd.key.control.InteractionListener
@@ -15,9 +15,9 @@ import de.uka.ilkd.key.rule.BuiltInRule
 import de.uka.ilkd.key.rule.IBuiltInRuleApp
 import de.uka.ilkd.key.rule.RuleApp
 import de.uka.ilkd.key.settings.Settings
-import org.key_project.ui.interactionlog.api.Interaction
-import org.key_project.ui.interactionlog.api.InteractionRecorderListener
-import org.key_project.ui.interactionlog.model.*
+import io.github.wadoon.key.interactionlog.model.Interaction
+import io.github.wadoon.key.interactionlog.model.InteractionRecorderListener
+import io.github.wadoon.key.interactionlog.model.*
 import java.io.File
 import java.util.*
 

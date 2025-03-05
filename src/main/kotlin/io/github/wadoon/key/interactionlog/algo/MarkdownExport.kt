@@ -1,9 +1,8 @@
-package org.key_project.ui.interactionlog.algo
+package io.github.wadoon.key.interactionlog.algo
 
-import org.key_project.ui.interactionlog.Markdown
-import org.key_project.ui.interactionlog.api.Interaction
-import org.key_project.ui.interactionlog.api.Markdownable
-import org.key_project.ui.interactionlog.model.InteractionLog
+import io.github.wadoon.key.interactionlog.model.Interaction
+import io.github.wadoon.key.interactionlog.model.Markdownable
+import io.github.wadoon.key.interactionlog.model.InteractionLog
 import java.io.PrintWriter
 import java.util.*
 
@@ -81,4 +80,4 @@ fun Interaction?.toMarkdown() = try {
     "No markdown available for $this"
 }
 
-fun Interaction?.toHtml() = Markdown.html(toMarkdown())
+fun Interaction?.toHtml() = io.github.wadoon.key.interactionlog.Markdown.html(toMarkdown())

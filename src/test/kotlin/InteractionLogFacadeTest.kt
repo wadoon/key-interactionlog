@@ -1,11 +1,11 @@
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.key_project.ui.interactionlog.InteractionLogFacade
-import org.key_project.ui.interactionlog.model.InteractionLog
-import org.key_project.ui.interactionlog.model.OSSBuiltInRuleInteraction
-import org.key_project.ui.interactionlog.model.PruneInteraction
-import org.key_project.ui.interactionlog.model.SMTBuiltInRuleInteraction
+import io.github.wadoon.key.interactionlog.InteractionLogFacade
+import io.github.wadoon.key.interactionlog.model.InteractionLog
+import io.github.wadoon.key.interactionlog.model.OSSBuiltInRuleInteraction
+import io.github.wadoon.key.interactionlog.model.PruneInteraction
+import io.github.wadoon.key.interactionlog.model.SMTBuiltInRuleInteraction
 import java.io.File
 
 /**

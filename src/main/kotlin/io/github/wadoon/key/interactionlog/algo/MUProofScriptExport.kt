@@ -1,8 +1,8 @@
-package org.key_project.ui.interactionlog.algo
+package io.github.wadoon.key.interactionlog.algo
 
-import org.key_project.ui.interactionlog.api.Interaction
-import org.key_project.ui.interactionlog.model.InteractionLog
-import org.key_project.ui.interactionlog.model.NodeInteraction
+import io.github.wadoon.key.interactionlog.model.Interaction
+import io.github.wadoon.key.interactionlog.model.InteractionLog
+import io.github.wadoon.key.interactionlog.model.NodeInteraction
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.lang.ref.WeakReference

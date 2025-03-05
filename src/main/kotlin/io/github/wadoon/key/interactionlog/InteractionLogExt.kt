@@ -1,4 +1,4 @@
-package org.key_project.ui.interactionlog
+package io.github.wadoon.key.interactionlog
 
 import bibliothek.gui.dock.common.CLocation
 import de.uka.ilkd.key.core.KeYSelectionEvent
@@ -8,9 +8,9 @@ import de.uka.ilkd.key.gui.actions.KeyAction
 import de.uka.ilkd.key.gui.actions.MainWindowAction
 import de.uka.ilkd.key.gui.extension.api.KeYGuiExtension
 import org.key_project.ui.BoundsPopupMenuListener
-import org.key_project.ui.interactionlog.api.Interaction
-import org.key_project.ui.interactionlog.api.InteractionRecorderListener
-import org.key_project.ui.interactionlog.model.InteractionLog
+import io.github.wadoon.key.interactionlog.model.Interaction
+import io.github.wadoon.key.interactionlog.model.InteractionRecorderListener
+import io.github.wadoon.key.interactionlog.model.InteractionLog
 import java.awt.Component
 import java.awt.event.ActionEvent
 import java.io.File

@@ -1,4 +1,4 @@
-package org.key_project.ui.interactionlog.model
+package io.github.wadoon.key.interactionlog.model
 
 import de.uka.ilkd.key.java.Services
 import de.uka.ilkd.key.logic.*

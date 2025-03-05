@@ -1,4 +1,4 @@
-package org.key_project.ui.interactionlog.model
+package io.github.wadoon.key.interactionlog.model
 
 import de.uka.ilkd.key.gui.WindowUserInterfaceControl
 import de.uka.ilkd.key.logic.PosInOccurrence
@@ -6,8 +6,9 @@ import de.uka.ilkd.key.proof.Goal
 import de.uka.ilkd.key.proof.Node
 import de.uka.ilkd.key.rule.*
 import de.uka.ilkd.key.rule.merge.MergeRuleBuiltInRuleApp
-import de.uka.ilkd.key.smt.RuleAppSMT
+import de.uka.ilkd.key.smt.SMTRuleApp
 import de.uka.ilkd.key.ui.AbstractMediatorUserInterfaceControl
+import kotlinx.serialization.Serializable
 
 object BuiltInRuleInteractionFactory {
     fun <T : IBuiltInRuleApp> create(node: Node, app: T): BuiltInRuleInteraction {
@@ -18,13 +19,14 @@ object BuiltInRuleInteractionFactory {
             is LoopContractInternalBuiltInRuleApp -> LoopContractInternalBuiltInRuleInteraction(app, node)
             is LoopInvariantBuiltInRuleApp -> LoopInvariantBuiltInRuleInteraction(app, node)
             is MergeRuleBuiltInRuleApp -> MergeRuleBuiltInRuleInteraction(app, node)
-            is RuleAppSMT -> SMTBuiltInRuleInteraction(app, node)
+            is SMTRuleApp -> SMTBuiltInRuleInteraction(app, node)
+            is JmlAssertRule -> {} // noninteractive
             else -> throw IllegalArgumentException()
         }
     }
 }
 
-
+@Serializable
 sealed class BuiltInRuleInteraction() : NodeInteraction() {
     var ruleName: String? = null
     var nodeIdentifier: NodeIdentifier? = null
@@ -40,6 +42,7 @@ sealed class BuiltInRuleInteraction() : NodeInteraction() {
  * @author Alexander Weigl
  * @version 1 (09.12.18)
  */
+@Serializable
 class ContractBuiltInRuleInteraction() : BuiltInRuleInteraction() {
     var contractType: String? = null
     var contractName: String? = null
@@ -70,6 +73,7 @@ class ContractBuiltInRuleInteraction() : BuiltInRuleInteraction() {
  * @author Alexander Weigl
  * @version 1 (09.12.18)
  */
+@Serializable
 class LoopContractInternalBuiltInRuleInteraction() : BuiltInRuleInteraction() {
     var displayName: String? = null
     var contractName: String? = null
@@ -89,6 +93,7 @@ class LoopContractInternalBuiltInRuleInteraction() : BuiltInRuleInteraction() {
  * @author Alexander Weigl
  * @version 1 (09.12.18)
  */
+@Serializable
 class LoopInvariantBuiltInRuleInteraction() : BuiltInRuleInteraction() {
     var displayName: String? = null
     var contractName: String? = null
@@ -106,6 +111,7 @@ class LoopInvariantBuiltInRuleInteraction() : BuiltInRuleInteraction() {
  * @author Alexander Weigl
  * @version 1 (09.12.18)
  */
+@Serializable
 class MergeRuleBuiltInRuleInteraction() : BuiltInRuleInteraction() {
     constructor(app: MergeRuleBuiltInRuleApp, node: Node) : this() {
         nodeIdentifier = NodeIdentifier.create(node)
@@ -118,6 +124,7 @@ class MergeRuleBuiltInRuleInteraction() : BuiltInRuleInteraction() {
  * @author Alexander Weigl
  * @version 1 (09.12.18)
  */
+@Serializable
 class OSSBuiltInRuleInteraction() : BuiltInRuleInteraction() {
     override val markdown: String
         get() = String.format(
@@ -157,8 +164,9 @@ class OSSBuiltInRuleInteraction() : BuiltInRuleInteraction() {
  * @author Alexander Weigl
  * @version 1 (09.12.18)
  */
+@Serializable
 class SMTBuiltInRuleInteraction() : BuiltInRuleInteraction() {
-    constructor(app: RuleAppSMT, node: Node) : this() {
+    constructor(app: SMTRuleApp, node: Node) : this() {
         nodeIdentifier = NodeIdentifier.create(node)
         occurenceIdentifier = OccurenceIdentifier.create(node.sequent(), app.posInOccurrence())
         println(app.ifInsts())
@@ -181,6 +189,7 @@ class SMTBuiltInRuleInteraction() : BuiltInRuleInteraction() {
  * @author Alexander Weigl
  * @version 1 (09.12.18)
  */
+@Serializable
 class UseDependencyContractBuiltInRuleInteraction() : BuiltInRuleInteraction() {
     constructor(app: UseDependencyContractApp, node: Node) : this() {
         nodeIdentifier = NodeIdentifier.create(node)

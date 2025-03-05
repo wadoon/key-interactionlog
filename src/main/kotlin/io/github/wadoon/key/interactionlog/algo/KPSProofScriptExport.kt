@@ -1,6 +1,6 @@
-package org.key_project.ui.interactionlog.algo
+package io.github.wadoon.key.interactionlog.algo
 
-import org.key_project.ui.interactionlog.model.InteractionLog
+import io.github.wadoon.key.interactionlog.model.InteractionLog
 
 import java.io.PrintWriter
 

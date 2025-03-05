@@ -1,4 +1,4 @@
-package org.key_project.ui.interactionlog
+package io.github.wadoon.key.interactionlog
 
 import bibliothek.gui.dock.common.DefaultMultipleCDockable
 import bibliothek.gui.dock.common.NullMultipleCDockableFactory
@@ -9,14 +9,14 @@ import de.uka.ilkd.key.gui.extension.api.TabPanel
 import de.uka.ilkd.key.gui.fonticons.*
 import de.uka.ilkd.key.proof.Proof
 import kotlinx.datetime.LocalDateTime
-import org.key_project.ui.interactionlog.algo.MUProofScriptExport
-import org.key_project.ui.interactionlog.algo.MarkdownExport
-import org.key_project.ui.interactionlog.algo.toHtml
-import org.key_project.ui.interactionlog.api.Interaction
-import org.key_project.ui.interactionlog.api.InteractionRecorderListener
-import org.key_project.ui.interactionlog.model.InteractionLog
-import org.key_project.ui.interactionlog.model.NodeInteraction
-import org.key_project.ui.interactionlog.model.UserNoteInteraction
+import io.github.wadoon.key.interactionlog.algo.MUProofScriptExport
+import io.github.wadoon.key.interactionlog.algo.MarkdownExport
+import io.github.wadoon.key.interactionlog.algo.toHtml
+import io.github.wadoon.key.interactionlog.model.Interaction
+import io.github.wadoon.key.interactionlog.model.InteractionRecorderListener
+import io.github.wadoon.key.interactionlog.model.InteractionLog
+import io.github.wadoon.key.interactionlog.model.NodeInteraction
+import io.github.wadoon.key.interactionlog.model.UserNoteInteraction
 import org.ocpsoft.prettytime.PrettyTime
 import java.awt.*
 import java.awt.datatransfer.DataFlavor

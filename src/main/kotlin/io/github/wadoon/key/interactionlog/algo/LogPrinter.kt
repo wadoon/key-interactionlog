@@ -1,9 +1,9 @@
-package org.key_project.ui.interactionlog.algo
+package io.github.wadoon.key.interactionlog.algo
 
 import de.uka.ilkd.key.java.Services
 import de.uka.ilkd.key.proof.Node
-import org.key_project.ui.interactionlog.api.Interaction
-import org.key_project.ui.interactionlog.model.InteractionLog
+import io.github.wadoon.key.interactionlog.model.Interaction
+import io.github.wadoon.key.interactionlog.model.InteractionLog
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.*
@@ -49,7 +49,8 @@ class LogPrinter(private val services: Services) {
     }
 
     private fun body(tree: HashMap<Interaction, List<Interaction>>,
-                     interaction: Interaction) {
+                     interaction: Interaction
+    ) {
 
         newline()
         //TODO out.write(interaction.getProofScriptRepresentation(services));

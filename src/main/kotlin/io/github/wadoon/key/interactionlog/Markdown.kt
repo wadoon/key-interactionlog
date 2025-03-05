@@ -1,4 +1,4 @@
-package org.key_project.ui.interactionlog
+package io.github.wadoon.key.interactionlog
 
 import org.commonmark.ext.gfm.tables.TablesExtension
 import org.commonmark.parser.Parser

@@ -1,10 +1,10 @@
-package org.key_project.ui.interactionlog
+package io.github.wadoon.key.interactionlog
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
-import org.key_project.ui.interactionlog.model.InteractionLog
+import io.github.wadoon.key.interactionlog.model.InteractionLog
 import java.io.File
 
 

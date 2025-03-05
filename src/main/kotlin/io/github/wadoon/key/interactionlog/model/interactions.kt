@@ -1,4 +1,4 @@
-package org.key_project.ui.interactionlog.model
+package io.github.wadoon.key.interactionlog.model
 
 import de.uka.ilkd.key.api.ProofMacroApi
 import de.uka.ilkd.key.control.InteractionListener
@@ -16,14 +16,14 @@ import de.uka.ilkd.key.prover.impl.ApplyStrategyInfo
 import de.uka.ilkd.key.rule.RuleApp
 import de.uka.ilkd.key.rule.TacletApp
 import de.uka.ilkd.key.ui.AbstractMediatorUserInterfaceControl
+import io.github.wadoon.key.interactionlog.algo.LogPrinter
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import org.key_project.ui.interactionlog.algo.LogPrinter
-import org.key_project.ui.interactionlog.api.Interaction
 import org.key_project.util.RandomName
 import org.key_project.util.collection.ImmutableSLList
 import java.awt.Color
@@ -72,8 +72,8 @@ data class InteractionLog(val name: String = RandomName.getRandomName(), var cre
     override fun toString(): String = name
 }
 
-
-abstract class NodeInteraction(@Transient var serialNr: Int? = null) : Interaction() {
+@Serializable
+sealed class NodeInteraction(@Transient var serialNr: Int? = null) : Interaction() {
     var nodeId: NodeIdentifier? = null
 
     constructor(node: Node) : this(node.serialNr()) {
@@ -89,9 +89,11 @@ abstract class NodeInteraction(@Transient var serialNr: Int? = null) : Interacti
 /**
  * @author Alexander Weigl
  */
+@Serializable
 class MacroInteraction() : NodeInteraction() {
     var macroName: String? = null
     var macro: ProofMacro? = null
+    @Contextual
     var pos: PosInOccurrence? = null
     var info: String? = null
     var openGoalSerialNumbers: List<Int>? = null
@@ -153,6 +155,7 @@ class MacroInteraction() : NodeInteraction() {
  * @author Alexander Weigl
  * @version 1 (06.12.18)
  */
+@Serializable
 class NodeIdentifier() {
     var treePath: MutableList<Int> = ArrayList()
 
@@ -211,7 +214,7 @@ class NodeIdentifier() {
         }
     }
 }
-
+@Serializable
 class PruneInteraction() : NodeInteraction() {
     constructor(node: Node) : this() {
         serialNr = node.serialNr()
@@ -250,6 +253,7 @@ class PruneInteraction() : NodeInteraction() {
  * @author Alexander Weigl
  * @version 1 (09.12.18)
  */
+@Serializable
 class OccurenceIdentifier {
     var path: Array<Int>? = null
     var term: String? = null
@@ -261,9 +265,9 @@ class OccurenceIdentifier {
     override fun toString(): String {
         return path?.let {
             if (it.isNotEmpty()) {
-                term!! + " under " + toplevelFormula + "(Path: " + Arrays.toString(path) + ")"
+                "$term under $toplevelFormula(Path: ${path.contentToString()})"
             } else {
-                term!! + " @toplevel"
+                "$term @toplevel"
             }
         } ?: " @toplevel"
     }
@@ -307,6 +311,7 @@ class OccurenceIdentifier {
 }
 
 
+@Serializable
 class UserNoteInteraction() : Interaction() {
     var note: String = ""
 
@@ -337,11 +342,10 @@ class UserNoteInteraction() : Interaction() {
 }
 
 
+@Serializable
 class SettingChangeInteraction() : Interaction() {
-    var savedSettings: Properties? = null
-
+    var savedSettings: Map<String, String>? = null
     var type: InteractionListener.SettingType? = null
-
     var message: String? = null
 
     override val markdown: String
@@ -362,7 +366,7 @@ class SettingChangeInteraction() : Interaction() {
         graphicalStyle.backgroundColor = Color.WHITE
         graphicalStyle.foregroundColor = Color.gray
         this.type = type
-        this.savedSettings = settings
+        this.savedSettings = settings.toStringMap()
     }
 
     override fun toString(): String {
@@ -371,16 +375,21 @@ class SettingChangeInteraction() : Interaction() {
 
     override fun reapplyStrict(uic: AbstractMediatorUserInterfaceControl, goal: Goal) {
         val settings = goal.proof().settings
+        val p = Properties()
+        savedSettings?.forEach {(k,v)-> p.setProperty(k, v)}
         when (type) {
-            InteractionListener.SettingType.SMT -> settings.smtSettings.readSettings(savedSettings)
-            InteractionListener.SettingType.CHOICE -> settings.choiceSettings.readSettings(savedSettings)
-            InteractionListener.SettingType.STRATEGY -> settings.strategySettings.readSettings(savedSettings)
+            InteractionListener.SettingType.SMT -> settings.smtSettings.readSettings(p)
+            InteractionListener.SettingType.CHOICE -> settings.choiceSettings.readSettings(p)
+            InteractionListener.SettingType.STRATEGY -> settings.strategySettings.readSettings(p)
             null -> TODO()
         }
     }
 }
 
+private fun Properties.toStringMap(): Map<String, String> = asSequence().map { (k, v) -> k.toString() to v.toString() }.toMap()
 
+
+@Serializable
 class AutoModeInteraction() : Interaction() {
     // copined from ApplyStrategyInfo info
     var infoMessage: String? = null
@@ -454,6 +463,7 @@ class AutoModeInteraction() : Interaction() {
 /**
  * @author weigl
  */
+@Serializable
 class RuleInteraction() : NodeInteraction() {
     var ruleName: String? = null
     var posInOccurence: OccurenceIdentifier? = null

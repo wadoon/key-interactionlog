@@ -15,7 +15,7 @@ plugins {
     `signing`
 }
 
-group = "io.github.wadoon"
+group = "io.github.wadoon.key"
 version = "0.9-SNAPSHOT"
 
 repositories {
@@ -34,7 +34,7 @@ tasks.getByName<ShadowJar>("shadowJar") {
 
 repositories {
     mavenCentral()
-    maven("https://git.key-project.org/api/v4/projects/35/packages/maven")
+    //maven("https://git.key-project.org/api/v4/projects/35/packages/maven")
 }
 
 dependencies {
@@ -55,9 +55,9 @@ dependencies {
 
     val testImplementation by configurations
 
-    implementation("org.key_project:key.core:2.11.0")
-    implementation("org.key_project:key.ui:2.11.0")
-    implementation("org.key_project:key.util:2.11.0")
+    implementation("org.key-project:key.core:2.12.2")
+    implementation("org.key-project:key.ui:2.12.2")
+    implementation("org.key-project:key.util:2.12.2")
 
     testImplementation("com.google.truth:truth:1.4.2")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")

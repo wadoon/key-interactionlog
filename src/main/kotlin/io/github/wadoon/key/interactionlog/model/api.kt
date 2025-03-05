@@ -1,22 +1,20 @@
-package org.key_project.ui.interactionlog.api
+package io.github.wadoon.key.interactionlog.model
 
 import de.uka.ilkd.key.proof.Goal
 import de.uka.ilkd.key.ui.AbstractMediatorUserInterfaceControl
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import org.key_project.ui.interactionlog.InteractionRecorder
-import org.key_project.ui.interactionlog.model.InteractionLog
-import org.key_project.ui.interactionlog.model.now
+import io.github.wadoon.key.interactionlog.InteractionRecorder
 import java.awt.Color
 import javax.swing.Icon
 
 /**
- * @author weigl
+ * @author Alexander Weigl
  */
-//@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+
 @Serializable
-abstract class Interaction : Markdownable, Scriptable, Reapplicable {
+sealed class Interaction : Markdownable, Scriptable, Reapplicable {
     @Transient
     var graphicalStyle = InteractionGraphicStyle()
         protected set
