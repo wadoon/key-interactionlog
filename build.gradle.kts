@@ -1,5 +1,5 @@
+
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "2.1.10"
@@ -53,31 +53,22 @@ dependencies {
 
     //    implementation("org.key_project:key.core")
 
-    val testImplementation by configurations
-
     implementation("org.key-project:key.core:2.12.3")
     implementation("org.key-project:key.ui:2.12.3")
     implementation("org.key-project:key.util:2.12.3")
 
     testImplementation("com.google.truth:truth:1.4.4")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.12.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.12.0")
     testImplementation("org.slf4j:slf4j-simple:2.0.17")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.12.0")
 
-
+    testImplementation(platform("org.junit:junit-bom:5.12.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "21"
-    }
-}
-
-tasks.withType<JavaCompile> {
-    options.release.set(21)
+kotlin {
+    jvmToolchain(21)
 }
 
 tasks.withType<Test> {

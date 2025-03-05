@@ -7,10 +7,12 @@ import de.uka.ilkd.key.gui.MainWindow
 import de.uka.ilkd.key.gui.actions.KeyAction
 import de.uka.ilkd.key.gui.actions.MainWindowAction
 import de.uka.ilkd.key.gui.extension.api.KeYGuiExtension
-import org.key_project.ui.BoundsPopupMenuListener
+import de.uka.ilkd.key.proof.Node
+import de.uka.ilkd.key.proof.Proof
 import io.github.wadoon.key.interactionlog.model.Interaction
-import io.github.wadoon.key.interactionlog.model.InteractionRecorderListener
 import io.github.wadoon.key.interactionlog.model.InteractionLog
+import io.github.wadoon.key.interactionlog.model.InteractionRecorderListener
+import org.key_project.ui.BoundsPopupMenuListener
 import java.awt.Component
 import java.awt.event.ActionEvent
 import java.io.File
@@ -96,11 +98,11 @@ class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExten
         mainWindow.userInterface.proofControl.addInteractionListener(recorder)
         mainWindow.userInterface.proofControl.addAutoModeListener(recorder)
         mainWindow.mediator.addKeYSelectionListener(object : KeYSelectionListener {
-            override fun selectedNodeChanged(e: KeYSelectionEvent?) {}
+            override fun selectedNodeChanged(e: KeYSelectionEvent<Node>?) {}
 
-            override fun selectedProofChanged(e: KeYSelectionEvent?) {
+            override fun selectedProofChanged(e: KeYSelectionEvent<Proof>?) {
                 mainWindow.mediator.selectedProof?.let {
-                    recorder.get(it)
+                    recorder[it]
                 }
             }
         })
@@ -130,11 +132,11 @@ class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExten
             isSelected = recorder.isDisableAll
             priority = -1
             menuPath = InteractionLogView.MENU_ILOG
-            putValue(Action.SHORT_DESCRIPTION, "Activation or Deactivation of interaction logging")
+            putValue(SHORT_DESCRIPTION, "Activation or Deactivation of interaction logging")
 
             update()
             addPropertyChangeListener { evt ->
-                if (evt.propertyName == Action.SELECTED_KEY)
+                if (evt.propertyName == SELECTED_KEY)
                     update()
             }
             lookupAcceleratorKey()
@@ -160,7 +162,7 @@ class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExten
     private inner class LoadAction : KeyAction() {
         init {
             name = "Load"
-            putValue(Action.SHORT_DESCRIPTION, "Load Interaction Log")
+            putValue(SHORT_DESCRIPTION, "Load Interaction Log")
             setIcon(InteractionLogView.ICON_LOAD.get(InteractionLogView.SMALL_ICON_SIZE))
             priority = 0
             menuPath = InteractionLogView.MENU_ILOG
@@ -225,12 +227,12 @@ class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExten
     inner class AutoSaveAction : KeyAction() {
         init {
             name = "Enable/Disable Auto Save"
-            putValue(Action.SHORT_DESCRIPTION, "If enabled, interaction log are stored on every interaction.")
+            putValue(SHORT_DESCRIPTION, "If enabled, interaction log are stored on every interaction.")
             priority = 0
             menuPath = InteractionLogView.MENU_ILOG
             lookupAcceleratorKey()
             addPropertyChangeListener { evt ->
-                if (evt.propertyName == Action.SELECTED_KEY) {
+                if (evt.propertyName == SELECTED_KEY) {
                     onAutoSaveChange(isSelected)
                     update()
                 }
@@ -261,7 +263,7 @@ class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExten
     inner class SaveAsAction : KeyAction() {
         init {
             name = "Save As ..."
-            putValue(Action.SHORT_DESCRIPTION, "Save the current selected interaction into a file.")
+            putValue(SHORT_DESCRIPTION, "Save the current selected interaction into a file.")
             setIcon(InteractionLogView.ICON_SAVE_AS.get(InteractionLogView.SMALL_ICON_SIZE))
             priority = 0
             menuPath = InteractionLogView.MENU_ILOG

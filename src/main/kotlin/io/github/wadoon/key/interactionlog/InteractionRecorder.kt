@@ -15,8 +15,6 @@ import de.uka.ilkd.key.rule.BuiltInRule
 import de.uka.ilkd.key.rule.IBuiltInRuleApp
 import de.uka.ilkd.key.rule.RuleApp
 import de.uka.ilkd.key.settings.Settings
-import io.github.wadoon.key.interactionlog.model.Interaction
-import io.github.wadoon.key.interactionlog.model.InteractionRecorderListener
 import io.github.wadoon.key.interactionlog.model.*
 import java.io.File
 import java.util.*
@@ -175,9 +173,10 @@ class InteractionRecorder : InteractionListener, AutoModeListener {
     ) {
         if (isDisableAll) return
         val state = get(node.proof())
-        val interaction = BuiltInRuleInteractionFactory.create(node, app)
-        state.add(interaction)
-        emit(state, interaction)
+        BuiltInRuleInteractionFactory.create(node, app)?.let { interaction ->
+            state.add(interaction)
+            emit(state, interaction)
+        }
     }
 
     fun addListener(listener: InteractionRecorderListener) {

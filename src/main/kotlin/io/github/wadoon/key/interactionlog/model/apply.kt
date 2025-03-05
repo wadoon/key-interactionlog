@@ -10,6 +10,7 @@ import de.uka.ilkd.key.proof.Goal
 import de.uka.ilkd.key.proof.rulefilter.TacletFilter
 import de.uka.ilkd.key.rule.*
 import de.uka.ilkd.key.util.parsing.BuildingExceptions
+import org.key_project.logic.Name
 import org.key_project.util.collection.ImmutableMapEntry
 
 class RuleHelper(
@@ -75,7 +76,7 @@ class RuleHelper(
                 result = it
                 recheckMatchConditions = true
             }
-        recheckMatchConditions = recheckMatchConditions and !(result.uninstantiatedVars()?.isEmpty ?: false)
+        recheckMatchConditions = recheckMatchConditions and (result.uninstantiatedVars()?.isEmpty != true)
         for (sv: SchemaVariable in result.uninstantiatedVars()) {
             if (result.isInstantiationRequired(sv)) {
                 val inst: Term = term(sv)
@@ -147,8 +148,6 @@ class RuleHelper(
     }
 
     fun findBuiltInRuleApps(): Sequence<IBuiltInRuleApp> {
-        val services = goal.proof().services
-        assert(services != null)
         val index = goal.ruleAppIndex()
             .builtInRuleAppIndex()
 
@@ -208,10 +207,7 @@ class RuleHelper(
     /**
      * Returns true iff the given [SequentFormula] either matches the
      * [occId] parameter.
-     * @param p
-     * The [Parameters] object.
-     * @param sf
-     * The [SequentFormula] to check.
+     * @param sf The [SequentFormula] to check.
      * @return true if `sf` matches.
      */
     private fun isFormulaSearchedFor(sf: SequentFormula): Boolean {
@@ -248,15 +244,14 @@ fun TacletApp.arguments(): Map<String, String> = instantiations().pairIterator()
         k.toString() to s
     }.toMap()
 
-private operator fun <S, T> ImmutableMapEntry<S, T>.component1() = key()
-private operator fun <S, T> ImmutableMapEntry<S, T>.component2() = value()
+private operator fun <S : Any, T> ImmutableMapEntry<S, T>.component1() = key()
+private operator fun <S : Any, T> ImmutableMapEntry<S, T>.component2() = value()
 
 
 /**
  * Removes spaces and line breaks from the string representation of a term.
  *
- * @param str
- * The string to "clean up".
+ * @param services the services object
  * @return The original without spaces and line breaks.
  */
 private fun Term.formatTermString(services: Services? = null): String =

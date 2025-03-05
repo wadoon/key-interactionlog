@@ -146,7 +146,7 @@ class MacroInteraction() : NodeInteraction() {
     }
 
     companion object {
-        private val serialVersionUID = 1L
+        private const val serialVersionUID = 1L
     }
 }
 
@@ -244,7 +244,7 @@ class PruneInteraction() : NodeInteraction() {
     }
 
     companion object {
-        private val serialVersionUID = -8499747129362589793L
+        private const val serialVersionUID = -8499747129362589793L
     }
 }
 
@@ -337,7 +337,7 @@ class UserNoteInteraction() : Interaction() {
     }
 
     companion object {
-        private val serialVersionUID = 1L
+        private const val serialVersionUID = 1L
     }
 }
 
@@ -455,7 +455,7 @@ class AutoModeInteraction() : Interaction() {
     }
 
     companion object {
-        private val serialVersionUID = 3650173956594987169L
+        private const val serialVersionUID = 3650173956594987169L
     }
 }
 

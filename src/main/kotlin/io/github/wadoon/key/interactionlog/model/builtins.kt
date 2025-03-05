@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package io.github.wadoon.key.interactionlog.model
 
 import de.uka.ilkd.key.gui.WindowUserInterfaceControl
@@ -11,7 +13,7 @@ import de.uka.ilkd.key.ui.AbstractMediatorUserInterfaceControl
 import kotlinx.serialization.Serializable
 
 object BuiltInRuleInteractionFactory {
-    fun <T : IBuiltInRuleApp> create(node: Node, app: T): BuiltInRuleInteraction {
+    fun <T : IBuiltInRuleApp> create(node: Node, app: T): BuiltInRuleInteraction? {
         return when (app) {
             is OneStepSimplifierRuleApp -> OSSBuiltInRuleInteraction(app, node)
             is ContractRuleApp -> ContractBuiltInRuleInteraction(app, node)
@@ -20,8 +22,7 @@ object BuiltInRuleInteractionFactory {
             is LoopInvariantBuiltInRuleApp -> LoopInvariantBuiltInRuleInteraction(app, node)
             is MergeRuleBuiltInRuleApp -> MergeRuleBuiltInRuleInteraction(app, node)
             is SMTRuleApp -> SMTBuiltInRuleInteraction(app, node)
-            is JmlAssertRule -> {} // noninteractive
-            else -> throw IllegalArgumentException()
+            else -> null
         }
     }
 }
@@ -54,7 +55,7 @@ class ContractBuiltInRuleInteraction() : BuiltInRuleInteraction() {
         contractType = app.instantiation.typeName
     }
 
-    override fun toString() = "Contract ${contractName} applied"
+    override fun toString() = "Contract $contractName applied"
 
     override val proofScriptRepresentation: String
         get() = "contract $contractName"
