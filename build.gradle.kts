@@ -2,8 +2,8 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-    kotlin("jvm") version "2.1.20"
-    kotlin("plugin.serialization") version "2.1.20"
+    kotlin("jvm") version "2.1.21"
+    kotlin("plugin.serialization") version "2.1.21"
 
     id("org.jetbrains.dokka") version "2.0.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
@@ -60,7 +60,7 @@ dependencies {
     testImplementation("com.google.truth:truth:1.4.4")
     testImplementation("org.slf4j:slf4j-simple:2.0.17")
 
-    testImplementation(platform("org.junit:junit-bom:5.12.2"))
+    testImplementation(platform("org.junit:junit-bom:5.13.0"))
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
