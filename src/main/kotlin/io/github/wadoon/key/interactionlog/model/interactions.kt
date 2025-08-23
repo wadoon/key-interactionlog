@@ -1,37 +1,44 @@
+@file:Suppress("unused")
+
 package io.github.wadoon.key.interactionlog.model
 
-import de.uka.ilkd.key.api.ProofMacroApi
 import de.uka.ilkd.key.control.InteractionListener
 import de.uka.ilkd.key.gui.MainWindow
-import de.uka.ilkd.key.logic.PosInOccurrence
-import de.uka.ilkd.key.logic.PosInTerm
-import de.uka.ilkd.key.logic.Sequent
 import de.uka.ilkd.key.macros.ProofMacro
 import de.uka.ilkd.key.macros.ProofMacroFinishedInfo
-import de.uka.ilkd.key.macros.scripts.ScriptException
+import de.uka.ilkd.key.nparser.ParsingFacade
 import de.uka.ilkd.key.proof.Goal
 import de.uka.ilkd.key.proof.Node
 import de.uka.ilkd.key.proof.Proof
-import de.uka.ilkd.key.prover.impl.ApplyStrategyInfo
-import de.uka.ilkd.key.rule.RuleApp
 import de.uka.ilkd.key.rule.TacletApp
+import de.uka.ilkd.key.scripts.ScriptException
+import de.uka.ilkd.key.settings.Configuration
 import de.uka.ilkd.key.ui.AbstractMediatorUserInterfaceControl
 import io.github.wadoon.key.interactionlog.algo.LogPrinter
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import org.antlr.v4.runtime.CharStreams
+import org.key_project.logic.PosInTerm
+import org.key_project.prover.engine.ProofSearchInformation
+import org.key_project.prover.rules.RuleApp
+import org.key_project.prover.sequent.PosInOccurrence
+import org.key_project.prover.sequent.Sequent
 import org.key_project.util.RandomName
-import org.key_project.util.collection.ImmutableSLList
 import java.awt.Color
 import java.io.File
+import java.io.StringWriter
+import java.lang.Character.isWhitespace
 import java.lang.ref.WeakReference
 import java.util.*
 import javax.swing.JOptionPane
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 internal fun now(): LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
 /**
@@ -73,16 +80,18 @@ data class InteractionLog(val name: String = RandomName.getRandomName(), var cre
 }
 
 @Serializable
-sealed class NodeInteraction(@Transient var serialNr: Int? = null) : Interaction() {
-    var nodeId: NodeIdentifier? = null
+sealed class NodeInteraction() : Interaction() {
+    var nodeIdentifier: NodeIdentifier? = null
 
-    constructor(node: Node) : this(node.serialNr()) {
-        this.nodeId = NodeIdentifier.create(node)
+    @Transient
+    var serialNr: Int? = null
+
+    constructor(node: Node) : this() {
+        nodeIdentifier = NodeIdentifier.create(node)
+        serialNr = node.serialNr()
     }
 
-    fun getNode(proof: Proof): Node {
-        return nodeId!!.findNode(proof).orElse(null)
-    }
+    fun getNode(proof: Proof): Node? = nodeIdentifier?.findNode(proof)
 }
 
 
@@ -93,6 +102,7 @@ sealed class NodeInteraction(@Transient var serialNr: Int? = null) : Interaction
 class MacroInteraction() : NodeInteraction() {
     var macroName: String? = null
     var macro: ProofMacro? = null
+
     @Contextual
     var pos: PosInOccurrence? = null
     var info: String? = null
@@ -112,24 +122,26 @@ class MacroInteraction() : NodeInteraction() {
         get() = "macro $macro;\n"
 
     constructor(node: Node, macro: ProofMacro, posInOcc: PosInOccurrence?, info: ProofMacroFinishedInfo) : this() {
+        nodeIdentifier = NodeIdentifier.create(node)
+        serialNr = node.serialNr()
+
         this.info = info.toString()
         macroName = macro.scriptCommandName
         pos = posInOcc
-        val openGoals = if (info.proof != null)
-            info.proof.openGoals()
-        else
-            ImmutableSLList.nil()
+        val openGoals = info.proof.openGoals()
         this.openGoalSerialNumbers = openGoals.toList().map { g -> g.node().serialNr() }
         this.openGoalNodeIds = openGoals.toList().map { g -> NodeIdentifier.create(g.node()) }
     }
 
-    override fun toString(): String {
-        return macroName ?: "n/a"
+    override fun toString(): String = macroName ?: "n/a"
+
+    val macros by lazy {
+        ServiceLoader.load(ProofMacro::class.java).toList()
     }
 
     @Throws(Exception::class)
     override fun reapplyStrict(uic: AbstractMediatorUserInterfaceControl, goal: Goal) {
-        val macro = ProofMacroApi().getMacro(macroName)
+        val macro = macros.find { it.name == macroName }
         val pio = pos
         if (macro != null) {
             if (!macro.canApplyTo(goal.node(), pio)) {
@@ -144,10 +156,6 @@ class MacroInteraction() : NodeInteraction() {
 
         }
     }
-
-    companion object {
-        private const val serialVersionUID = 1L
-    }
 }
 
 
@@ -156,47 +164,41 @@ class MacroInteraction() : NodeInteraction() {
  * @version 1 (06.12.18)
  */
 @Serializable
-class NodeIdentifier() {
-    var treePath: MutableList<Int> = ArrayList()
-
-    var branchLabel: String? = null
-
+data class NodeIdentifier(
+    var treePath: MutableList<Int> = ArrayList(),
+    var branchLabel: String? = null,
     var serialNr: Int = 0
+) {
+
+    constructor(vararg seq: Int) : this(seq.toList())
 
     constructor(seq: List<Int>) : this() {
         this.treePath.addAll(seq)
     }
 
-    override fun toString(): String {
-        return treePath.stream()
+    override fun toString() =
+        treePath.stream()
             .map { it.toString() }
             .reduce("") { a, b -> a + b } +
                 " => " + serialNr
-    }
 
 
-    fun findNode(proof: Proof): Optional<Node> {
-        return findNode(proof.root())
-    }
+    fun findNode(proof: Proof) = findNode(proof.root())
 
-    fun findNode(node: Node): Optional<Node> {
+    fun findNode(node: Node): Node? {
         var n = node
         for (child in treePath) {
             if (child <= n.childrenCount()) {
                 n = n.child(child)
             } else {
-                return Optional.empty()
+                return null
             }
         }
-        return Optional.of(n)
+        return n
     }
 
     companion object {
-        private const val serialVersionUID = 7147788921672163642L
-
-        fun create(g: Goal): NodeIdentifier {
-            return create(g.node())
-        }
+        fun create(g: Goal): NodeIdentifier = create(g.node())
 
         fun create(node: Node): NodeIdentifier {
             var n: Node? = node
@@ -214,37 +216,33 @@ class NodeIdentifier() {
         }
     }
 }
+
 @Serializable
 class PruneInteraction() : NodeInteraction() {
-    constructor(node: Node) : this() {
-        serialNr = node.serialNr()
-        nodeId = NodeIdentifier.create(node)
-    }
-
     override val markdown: String
         get() = """
             ## Prune
 
             * **Date**: $created
-            * Prune to node: `$nodeId`
+            * Prune to node: `$nodeIdentifier`
             """.trimIndent()
 
     override val proofScriptRepresentation: String
-        get() = "prune $nodeId\n"
+        get() = "prune $nodeIdentifier\n"
 
-    override fun toString(): String {
-        return "prune"
+    override fun toString(): String = "prune"
+
+    constructor(node: Node) : this() {
+        nodeIdentifier = NodeIdentifier.create(node)
+        serialNr = node.serialNr()
     }
+
 
     @Throws(Exception::class)
     override fun reapplyStrict(uic: AbstractMediatorUserInterfaceControl, goal: Goal) {
-        nodeId?.findNode(goal.proof())
-            ?.get()
-            ?.also { goal.proof().pruneProof(it) }
-    }
-
-    companion object {
-        private const val serialVersionUID = -8499747129362589793L
+        nodeIdentifier?.findNode(goal.proof())?.also {
+            goal.proof().pruneProof(it)
+        }
     }
 }
 
@@ -272,13 +270,9 @@ class OccurenceIdentifier {
         } ?: " @toplevel"
     }
 
-    fun rebuildOn(goal: Goal): PosInOccurrence? {
-        val seq = goal.node().sequent()
-        return rebuildOn(seq)
-    }
+    fun rebuildOn(goal: Goal) = rebuildOn(goal.node().sequent())
 
-    private fun rebuildOn(seq: Sequent): PosInOccurrence? {
-        //val formulas = if (isAntec) seq.antecedent() else seq.succedent()
+    private fun rebuildOn(seq: Sequent): PosInOccurrence {
         val path = path
         val pit = if (path != null && path.isNotEmpty())
             PosInTerm(path.toIntArray())
@@ -312,8 +306,7 @@ class OccurenceIdentifier {
 
 
 @Serializable
-class UserNoteInteraction() : Interaction() {
-    var note: String = ""
+class UserNoteInteraction(var note: String = "") : Interaction() {
 
     override val markdown: String
         get() = """
@@ -328,78 +321,72 @@ class UserNoteInteraction() : Interaction() {
         graphicalStyle.backgroundColor = Color.red.brighter().brighter().brighter()
     }
 
-    constructor(note: String) : this() {
-        this.note = note
-    }
-
-    override fun toString(): String {
-        return note
-    }
-
-    companion object {
-        private const val serialVersionUID = 1L
-    }
+    override fun toString(): String = note
 }
 
 
 @Serializable
 class SettingChangeInteraction() : Interaction() {
-    var savedSettings: Map<String, String>? = null
+    var savedSettings: String? = null
     var type: InteractionListener.SettingType? = null
     var message: String? = null
 
     override val markdown: String
         get() {
-            val props = savedSettings?.map { (k, v) ->
-                "* **`$k`** : `$v`\n"
-            }?.joinToString("\n")
-
             return """
             # Setting changed: ${type?.name}
 
             **Date**: $created
             
-            """.trimIndent() + props
+            """.trimIndent() + """
+                |```
+                |${savedSettings}
+                |```
+                |
+            """.trimMargin()
         }
 
-    constructor(settings: Properties, type: InteractionListener.SettingType) : this() {
+    constructor(settings: Configuration, type: InteractionListener.SettingType) : this() {
         graphicalStyle.backgroundColor = Color.WHITE
         graphicalStyle.foregroundColor = Color.gray
         this.type = type
-        this.savedSettings = settings.toStringMap()
+        this.savedSettings = StringWriter().use {
+            settings.save(it, "")
+            it.toString()
+        }
     }
 
-    override fun toString(): String {
-        return (if (message != null) message!! + " : " else "") + type
-    }
+    override fun toString(): String = (if (message != null) message!! + " : " else "") + type
 
     override fun reapplyStrict(uic: AbstractMediatorUserInterfaceControl, goal: Goal) {
         val settings = goal.proof().settings
-        val p = Properties()
-        savedSettings?.forEach {(k,v)-> p.setProperty(k, v)}
+        val p = savedSettings?.let {
+            ParsingFacade.parseConfigurationFile(CharStreams.fromString(savedSettings))
+                .asConfiguration()
+        } ?: error("No settings stored")
+
         when (type) {
-            InteractionListener.SettingType.SMT -> settings.smtSettings.readSettings(p)
-            InteractionListener.SettingType.CHOICE -> settings.choiceSettings.readSettings(p)
-            InteractionListener.SettingType.STRATEGY -> settings.strategySettings.readSettings(p)
+            InteractionListener.SettingType.SMT -> settings.smtSettings.writeSettings(p)
+            InteractionListener.SettingType.CHOICE -> settings.choiceSettings.writeSettings(p)
+            InteractionListener.SettingType.STRATEGY -> settings.strategySettings.writeSettings(p)
             null -> TODO()
         }
     }
 }
 
-private fun Properties.toStringMap(): Map<String, String> = asSequence().map { (k, v) -> k.toString() to v.toString() }.toMap()
+
+private fun Properties.toStringMap(): Map<String, String> =
+    asSequence().map { (k, v) -> k.toString() to v.toString() }.toMap()
 
 
 @Serializable
-class AutoModeInteraction() : Interaction() {
-    // copined from ApplyStrategyInfo info
-    var infoMessage: String? = null
-    var timeInMillis: Long = 0
-    var appliedRuleAppsCount = 0
-    var errorMessage: String? = null
-    var nrClosedGoals = 0
-
-    //var info: ApplyStrategyInfo? = null
-
+class AutoModeInteraction(
+    var infoMessage: String? = null,
+    var timeInMillis: Long = 0,
+    var appliedRuleAppsCount: Int = 0,
+    var errorMessage: String? = null,
+    var nrClosedGoals: Int = 0
+) : Interaction() {
     var initialNodeIds: List<NodeIdentifier> = arrayListOf()
     var openGoalNodeIds: List<NodeIdentifier> = arrayListOf()
 
@@ -434,28 +421,23 @@ class AutoModeInteraction() : Interaction() {
     override val proofScriptRepresentation: String
         get() = "auto;%n"
 
-    constructor(initialNodes: List<Node>, info: ApplyStrategyInfo) : this() {
-        infoMessage = info.reason()
-        timeInMillis = info.time
-        appliedRuleAppsCount = info.appliedRuleApps
-        errorMessage = info.exception?.message
-        nrClosedGoals = info.closedGoals
+    constructor(initialNodes: List<Node>, info: ProofSearchInformation<Proof, Goal>) : this(
+        info.reason(),
+        info.time,
+        info.numberOfAppliedRuleApps,
+        info.exception?.message,
+        info.numberOfClosedGoals
+    ) {
         this.initialNodeIds = initialNodes.map { NodeIdentifier.create(it) }
         val openGoals = info.proof.openGoals()
         this.openGoalNodeIds = openGoals.toList().map { NodeIdentifier.create(it) }
     }
 
-    override fun toString(): String {
-        return "Auto Mode"
-    }
+    override fun toString(): String = "Auto Mode"
 
     @Throws(Exception::class)
     override fun reapplyStrict(uic: AbstractMediatorUserInterfaceControl, goal: Goal) {
         uic.proofControl.startAutoMode(goal.proof(), goal.proof().openGoals(), uic)
-    }
-
-    companion object {
-        private const val serialVersionUID = 3650173956594987169L
     }
 }
 
@@ -471,8 +453,10 @@ class RuleInteraction() : NodeInteraction() {
     var ruleOccurence: Int? = null
 
     constructor(node: Node, app: RuleApp) : this() {
+        nodeIdentifier = NodeIdentifier.create(node)
+        serialNr = node.serialNr()
+
         ruleName = app.rule().displayName()
-        nodeId = NodeIdentifier.create(node)
         this.posInOccurence = OccurenceIdentifier.create(node.sequent(), app.posInOccurrence())
         if (app is TacletApp) {
             arguments = HashMap(app.arguments())
@@ -522,17 +506,11 @@ class RuleInteraction() : NodeInteraction() {
             """.trimIndent()
         }
 
-    override fun toString(): String {
-        return ruleName ?: "n/a"
-    }
+    override fun toString(): String = ruleName ?: "n/a"
 
     private fun firstWord(k: String): String {
         val t = k.trim { it <= ' ' }
-        val p = t.indexOf(' ')
-        return if (p <= 0)
-            t
-        else
-            t.substring(0, p)
+        return t.takeWhile { isWhitespace(it) }
     }
 
     override fun reapplyStrict(uic: AbstractMediatorUserInterfaceControl, goal: Goal) {
@@ -543,22 +521,9 @@ class RuleInteraction() : NodeInteraction() {
                 val completeApp: RuleApp? = theApp.tryToInstantiate(goal.proof().services)
                 theApp = completeApp ?: theApp
             }
-            goal.apply(theApp)
+            theApp?.let { goal.apply(it) }
         } catch (e: ScriptException) {
             JOptionPane.showMessageDialog(MainWindow.getInstance(), e.message)
         }
-
-        /*
-           val ruleCommand = RuleCommand()
-            val state = EngineState(goal.proof())
-            try {
-                val parameter = ruleCommand.evaluateArguments(state, arguments)
-                ruleCommand.execute(uic, parameter, state)
-            } catch (e: Exception) {
-                throw IllegalStateException("Rule application", e)
-            }
-            */
     }
 }
-
-

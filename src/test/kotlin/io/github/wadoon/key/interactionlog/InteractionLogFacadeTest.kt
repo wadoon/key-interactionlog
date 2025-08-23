@@ -1,11 +1,12 @@
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
-import io.github.wadoon.key.interactionlog.InteractionLogFacade
+package io.github.wadoon.key.interactionlog
+
 import io.github.wadoon.key.interactionlog.model.InteractionLog
 import io.github.wadoon.key.interactionlog.model.OSSBuiltInRuleInteraction
 import io.github.wadoon.key.interactionlog.model.PruneInteraction
 import io.github.wadoon.key.interactionlog.model.SMTBuiltInRuleInteraction
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import java.io.File
 
 /**
@@ -25,7 +26,7 @@ class InteractionLogFacadeTest {
         val readIl = InteractionLogFacade.readInteractionLog(file)
         assertEquals(il.interactions.size, readIl.interactions.size)
         assertEquals(il.name, readIl.name)
-
+        assertEquals(il, readIl)
         return readIl
     }
 

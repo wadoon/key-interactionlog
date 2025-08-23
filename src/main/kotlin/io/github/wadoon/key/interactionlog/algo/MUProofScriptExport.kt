@@ -33,7 +33,7 @@ open class MUProofScriptExport(val logbook: InteractionLog,
     }
 
     protected fun writeScriptBody() {
-        logbook.interactions.forEach { it ->
+        logbook.interactions.forEach {
             writeSelector(it)
             writer.write(it.proofScriptRepresentation)
         }
@@ -41,10 +41,10 @@ open class MUProofScriptExport(val logbook: InteractionLog,
 
     protected fun writeSelector(it: Interaction) {
         try {
-            (it as NodeInteraction).nodeId?.let {
+            (it as NodeInteraction).nodeIdentifier?.let {
                 writer.format("select %s;%n", it.branchLabel)
             }
-        } catch (ignored: ClassCastException) {
+        } catch (_: ClassCastException) {
         }
     }
 

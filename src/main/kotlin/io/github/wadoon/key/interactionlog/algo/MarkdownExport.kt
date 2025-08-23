@@ -1,8 +1,8 @@
 package io.github.wadoon.key.interactionlog.algo
 
 import io.github.wadoon.key.interactionlog.model.Interaction
-import io.github.wadoon.key.interactionlog.model.Markdownable
 import io.github.wadoon.key.interactionlog.model.InteractionLog
+import io.github.wadoon.key.interactionlog.model.Markdownable
 import java.io.PrintWriter
 import java.util.*
 
@@ -36,8 +36,8 @@ It was created on the ${Date()} by user ${System.getenv("user.name")}.
             writer.format("Following information were present about the proof:\n")
             writer.format("* Name of the proof: ${it.name()}\n")
             writer.format("* Abbreviations:")
-            it.abbreviations().export().forEach { p ->
-                writer.format("  * `${p.second}` := `${p.first}`\n")
+            it.abbreviations().export().forEach { (term,abbrev) ->
+                writer.format("  * `${abbrev}` := `$term`\n")
             }
             writer.format("* Proof file: ${it.proofFile}\n")
             writer.format("* Number of open goals: ${it.openGoals().size()}\n")
@@ -76,7 +76,7 @@ It was created on the ${Date()} by user ${System.getenv("user.name")}.
 fun Interaction?.toMarkdown() = try {
     val m = this as Markdownable
     m.markdown
-} catch (e: ClassCastException) {
+} catch (_: ClassCastException) {
     "No markdown available for $this"
 }
 

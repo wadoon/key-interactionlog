@@ -3,16 +3,18 @@
 package io.github.wadoon.key.interactionlog.model
 
 import de.uka.ilkd.key.gui.WindowUserInterfaceControl
-import de.uka.ilkd.key.logic.PosInOccurrence
 import de.uka.ilkd.key.proof.Goal
 import de.uka.ilkd.key.proof.Node
 import de.uka.ilkd.key.rule.*
 import de.uka.ilkd.key.rule.merge.MergeRuleBuiltInRuleApp
 import de.uka.ilkd.key.smt.SMTRuleApp
-import de.uka.ilkd.key.ui.AbstractMediatorUserInterfaceControl
 import kotlinx.serialization.Serializable
+import org.key_project.prover.sequent.PosInOccurrence
+import org.slf4j.LoggerFactory
+
 
 object BuiltInRuleInteractionFactory {
+    private val LOGGER = LoggerFactory.getLogger(BuiltInRuleInteractionFactory.javaClass)
     fun <T : IBuiltInRuleApp> create(node: Node, app: T): BuiltInRuleInteraction? {
         return when (app) {
             is OneStepSimplifierRuleApp -> OSSBuiltInRuleInteraction(app, node)
@@ -22,7 +24,10 @@ object BuiltInRuleInteractionFactory {
             is LoopInvariantBuiltInRuleApp -> LoopInvariantBuiltInRuleInteraction(app, node)
             is MergeRuleBuiltInRuleApp -> MergeRuleBuiltInRuleInteraction(app, node)
             is SMTRuleApp -> SMTBuiltInRuleInteraction(app, node)
-            else -> null
+            else -> {
+                LOGGER.warn("Unknown rule app {}", app::class.qualifiedName)
+                null
+            }
         }
     }
 }
@@ -30,11 +35,12 @@ object BuiltInRuleInteractionFactory {
 @Serializable
 sealed class BuiltInRuleInteraction() : NodeInteraction() {
     var ruleName: String? = null
-    var nodeIdentifier: NodeIdentifier? = null
     var occurenceIdentifier: OccurenceIdentifier? = null
 
     constructor(node: Node, pio: PosInOccurrence) : this() {
-        this.nodeIdentifier = NodeIdentifier.create(node)
+        nodeIdentifier = NodeIdentifier.create(node)
+        serialNr = node.serialNr()
+
         this.occurenceIdentifier = OccurenceIdentifier.create(node.sequent(), pio)
     }
 }
@@ -59,14 +65,6 @@ class ContractBuiltInRuleInteraction() : BuiltInRuleInteraction() {
 
     override val proofScriptRepresentation: String
         get() = "contract $contractName"
-
-    override fun reapplyStrict(uic: AbstractMediatorUserInterfaceControl, goal: Goal) {
-        super.reapplyStrict(uic, goal)
-    }
-
-    override fun reapplyRelaxed(uic: AbstractMediatorUserInterfaceControl, goal: Goal) {
-        super.reapplyRelaxed(uic, goal)
-    }
 }
 
 
@@ -170,19 +168,14 @@ class SMTBuiltInRuleInteraction() : BuiltInRuleInteraction() {
     constructor(app: SMTRuleApp, node: Node) : this() {
         nodeIdentifier = NodeIdentifier.create(node)
         occurenceIdentifier = OccurenceIdentifier.create(node.sequent(), app.posInOccurrence())
-        println(app.ifInsts())
+        println(app.assumesInsts())
     }
+
+    override fun toString(): String = "SMT built-in rule"
 
     override val proofScriptRepresentation: String
         get() = "smt"
 
-    override fun reapplyStrict(uic: AbstractMediatorUserInterfaceControl, goal: Goal) {
-        super.reapplyStrict(uic, goal)
-    }
-
-    override fun reapplyRelaxed(uic: AbstractMediatorUserInterfaceControl, goal: Goal) {
-        super.reapplyRelaxed(uic, goal)
-    }
 }
 
 
