@@ -1,4 +1,4 @@
-# A Logger for User Interactions in KeY
+# key-interactionlog -- A Logger for User Interactions in KeY
 
 *InteractionLog* is a plugin for the graphical user interface in KeY.
 It helps you to understand your steps during the proof, to gather
@@ -9,8 +9,39 @@ the information to redo these actions can be stored as JSON files.
 Redos are not limited on the original proofs, you can open a logbook
 and also apply the stored interactions on different proofs.
 
+<img src="doc/screen.png" alt="" width="100%">````
 
 ## Getting Started
+
+### Using official releses on maven central
+
+As a KeY developer, you can also add InteractionLog into your KeY build
+as a dependency in `build.gradle`. Just add the following lines to `key.ui/build.gradle`:
+
+```gradle 
+dependencies {
+  //...
+  runtimeOnly("io.github.wadoon.key:key-interactionlog:0.9")
+}
+```
+
+Current version: ![Maven Central Version](https://img.shields.io/maven-central/v/io.github.wadoon.key/key-interactionlog)
+
+### Using SNAPSHOT version
+
+If you prefer a SNAPSHOT version use the following setup: 
+```
+repositories {
+    maven { url = uri("https://central.sonatype.com/repository/maven-snapshots")}
+}
+
+dependencies {
+  //...
+  runtimeOnly("io.github.wadoon.key:key-interactionlog:1.1-SNAPSHOT")
+}
+```
+
+### Mnaual installation
 
 1. Download this repository and run the following command line: 
 
@@ -36,31 +67,6 @@ Note, Interaction Log requires some API changes in KeY, which are part
 of the KeY's master since January 2021. Therefore, InteractionLog is
 **not** useable with KeY 2.10.0 and below.
 
-### Integrated InteractionLog into your KeY build:
-
-
-As a KeY developer, you can also add InteractionLog into your KeY build 
-as a dependency in `build.gradle`. Just add the following lines to `key.ui/build.gradle`:
-
-```gradle 
-dependencies {
-  implementation("com.github.wadoon.keytools:interactionlog:0.9")
-}
-
-repositories {
-   maven { 
-      url = uri("https://maven.pkg.github.com/wadoon/key-tools") 
-      credentials {
-         username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-         password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
-      }
-   }
-}
-```
-
-Set the property or environment variable accordingly to your Github username and personal access token.
-
-[The packages are hosted at Github](https://github.com/wadoon/key-tools/packages/1213432).
 
 ## History
 

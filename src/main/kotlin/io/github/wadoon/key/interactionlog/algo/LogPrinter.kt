@@ -1,18 +1,16 @@
 package io.github.wadoon.key.interactionlog.algo
 
-import de.uka.ilkd.key.java.Services
 import de.uka.ilkd.key.proof.Node
 import io.github.wadoon.key.interactionlog.model.Interaction
 import io.github.wadoon.key.interactionlog.model.InteractionLog
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.util.*
 import java.util.function.Function
 
 /**
  * @author weigl
  */
-class LogPrinter(private val services: Services) {
+class LogPrinter() {
     private var w: StringWriter? = null
     private var out: PrintWriter? = null
     var matchExpr = Function<Node, String> { getBranchingLabel(it) }
@@ -48,8 +46,9 @@ class LogPrinter(private val services: Services) {
         }
     }
 
-    private fun body(tree: HashMap<Interaction, List<Interaction>>,
-                     interaction: Interaction
+    private fun body(
+        tree: HashMap<Interaction, List<Interaction>>,
+        interaction: Interaction
     ) {
 
         newline()
@@ -98,11 +97,8 @@ class LogPrinter(private val services: Services) {
 
     companion object {
         var SEPARATOR = " // "
-
         var RANGE_SEPARATOR = " -- "
-
         var END_MARKER = "$$"
-
 
         fun getBranchingLabel(node: Node?): String {
             var n = node
@@ -110,12 +106,14 @@ class LogPrinter(private val services: Services) {
             while (n != null) {
                 val p = n.parent()
                 if (p != null && p.childrenCount() != 1) {
-                    val branchLabel = n.nodeInfo.branchLabel
-                    sb.append(if (branchLabel != null && !branchLabel.isEmpty())
-                        branchLabel
-                    else
-                        "#" + p.getChildNr(n))
-                            .append(SEPARATOR)
+                    val branchLabel: String? = n.nodeInfo.branchLabel
+                    sb.append(
+                        if (branchLabel != null && !branchLabel.isEmpty())
+                            branchLabel
+                        else
+                            "#" + p.getChildNr(n)
+                    )
+                        .append(SEPARATOR)
                 }
                 n = p
             }

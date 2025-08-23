@@ -1,18 +1,12 @@
-
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     kotlin("jvm") version "2.2.10"
     kotlin("plugin.serialization") version "2.2.10"
-
-    id("org.jetbrains.dokka") version "2.0.0"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
-
-    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
-
     `java-library`
     `maven-publish`
-    `signing`
+    signing
+    id("org.jetbrains.dokka") version "2.0.0"
+    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
+    id("com.gradleup.shadow") version "9.0.1"
 }
 
 group = "io.github.wadoon.key"
@@ -22,41 +16,30 @@ repositories {
     mavenCentral()
 }
 
-val plugin by configurations.creating
-
-configurations {
-    implementation.get().extendsFrom(plugin)
-}
-
-tasks.getByName<ShadowJar>("shadowJar") {
-    configurations = listOf(plugin)
-}
-
 repositories {
     mavenCentral()
-    //maven("https://git.key-project.org/api/v4/projects/35/packages/maven")
+    maven { url = uri("https://central.sonatype.com/repository/maven-snapshots") }
 }
 
+val keyVersion = System.getenv("KEY_VERSION") ?: "2.12.4-SNAPSHOT"
+
 dependencies {
-    val implementation by configurations
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("com.github.ajalt:clikt:2.8.0")
+    implementation("org.jetbrains:annotations:26.0.2")
+    implementation("com.atlassian.commonmark:commonmark:0.17.0")
+    implementation("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.17.0")
+    implementation("org.ocpsoft.prettytime:prettytime:5.0.9.Final")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1-0.6.x-compat")
 
+    compileOnly("org.key-project:key.core:${keyVersion}")
+    compileOnly("org.key-project:key.ui:${keyVersion}")
+    compileOnly("org.slf4j:slf4j-api:2.0.17")
 
-    plugin(platform("org.jetbrains.kotlin:kotlin-bom"))
-    plugin("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-    plugin("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    plugin("com.github.ajalt:clikt:2.8.0")
-    plugin("org.jetbrains:annotations:26.0.2")
-    plugin("com.atlassian.commonmark:commonmark:0.17.0")
-    plugin("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.17.0")
-    plugin("org.ocpsoft.prettytime:prettytime:5.0.9.Final")
-    plugin("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1-0.6.x-compat")
-
-    //    implementation("org.key_project:key.core")
-
-    implementation("org.key-project:key.core:2.12.3")
-    implementation("org.key-project:key.ui:2.12.3")
-    implementation("org.key-project:key.util:2.12.3")
-
+    testImplementation("org.key-project:key.core:${keyVersion}")
+    testImplementation("org.key-project:key.ui:${keyVersion}")
     testImplementation("com.google.truth:truth:1.4.4")
     testImplementation("org.slf4j:slf4j-simple:2.0.17")
 
@@ -69,6 +52,11 @@ dependencies {
 
 kotlin {
     jvmToolchain(21)
+}
+
+tasks.register<JavaExec>("run") {
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass = "io.github.wadoon.key.interactionlog.ManualTest"
 }
 
 tasks.withType<Test> {
@@ -90,35 +78,24 @@ tasks.withType<Javadoc> {
     isFailOnError = false
 }
 
-/*
-nexusPublishing {
-    repositories {
-        sonatype {
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-        }
-    }
-}
-*/
-
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
             pom {
-                description.set("Interaction Logging plugin for the KeY Theorem Prover")
-                url.set("https://github.com/wadoon/key-interactionlog")
+                description = "Interaction Logging plugin for the KeY Theorem Prover"
+                url = "https://github.com/wadoon/key-interactionlog"
                 licenses {
                     license {
-                        name.set("GNU Public License Version 2")
-                        url.set("https://www.gnu.org/licenses/old-licenses/gpl-2.0.html")
+                        name = "GNU Public License Version 2"
+                        url = "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html"
                     }
                 }
                 developers {
                     developer {
-                        id.set("wadoon")
-                        name.set("Alexander Weigl")
-                        email.set("weigl@kit.edu")
+                        id = "wadoon"
+                        name = "Alexander Weigl"
+                        email = "weigl@kit.edu"
                     }
                 }
                 scm {
@@ -131,3 +108,19 @@ publishing {
     }
 }
 
+
+nexusPublishing {
+    repositories {
+        create("central") {
+            nexusUrl = uri("https://ossrh-staging-api.central.sonatype.com/service/local/")
+            snapshotRepositoryUrl = uri("https://central.sonatype.com/repository/maven-snapshots/")
+
+            stagingProfileId.set("io.github.wadoon")
+            val user: String = project.properties.getOrDefault("ossrhUsername", "").toString()
+            val pwd: String = project.properties.getOrDefault("ossrhPassword", "").toString()
+
+            username.set(user)
+            password.set(pwd)
+        }
+    }
+}

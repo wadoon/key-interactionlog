@@ -2,22 +2,23 @@ package io.github.wadoon.key.interactionlog
 
 import de.uka.ilkd.key.control.AutoModeListener
 import de.uka.ilkd.key.control.InteractionListener
-import de.uka.ilkd.key.logic.PosInOccurrence
 import de.uka.ilkd.key.macros.ProofMacro
 import de.uka.ilkd.key.macros.ProofMacroFinishedInfo
+import de.uka.ilkd.key.proof.Goal
 import de.uka.ilkd.key.proof.Node
 import de.uka.ilkd.key.proof.Proof
 import de.uka.ilkd.key.proof.ProofEvent
 import de.uka.ilkd.key.proof.mgt.ProofEnvironmentEvent
 import de.uka.ilkd.key.proof.mgt.ProofEnvironmentListener
-import de.uka.ilkd.key.prover.impl.ApplyStrategyInfo
 import de.uka.ilkd.key.rule.BuiltInRule
 import de.uka.ilkd.key.rule.IBuiltInRuleApp
-import de.uka.ilkd.key.rule.RuleApp
+import de.uka.ilkd.key.settings.Configuration
 import de.uka.ilkd.key.settings.Settings
 import io.github.wadoon.key.interactionlog.model.*
+import org.key_project.prover.engine.ProofSearchInformation
+import org.key_project.prover.rules.RuleApp
+import org.key_project.prover.sequent.PosInOccurrence
 import java.io.File
-import java.util.*
 
 /**
  * @author Alexander Weigl <weigl@kit.edu>
@@ -128,7 +129,7 @@ class InteractionRecorder : InteractionListener, AutoModeListener {
         if (disableSettingsChanges) return
         if (isDisableAll) return
 
-        val p = Properties()
+        val p = Configuration()
         settings.writeSettings(p)
         val sci = SettingChangeInteraction(p, type)
         if (message != null) sci.message = message
@@ -191,7 +192,7 @@ class InteractionRecorder : InteractionListener, AutoModeListener {
         listeners.forEach { l -> l.onInteraction(this, log, interaction) }
     }
 
-    override fun runAutoMode(initialGoals: List<Node>, proof: Proof, info: ApplyStrategyInfo) {
+    override fun runAutoMode(initialGoals: List<Node>, proof: Proof, info: ProofSearchInformation<Proof, Goal>) {
         if (isDisableAll) return
         val state = get(proof)
         val interaction = AutoModeInteraction(initialGoals, info)

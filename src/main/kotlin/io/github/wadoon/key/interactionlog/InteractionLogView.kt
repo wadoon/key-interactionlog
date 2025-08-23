@@ -5,18 +5,15 @@ import bibliothek.gui.dock.common.NullMultipleCDockableFactory
 import de.uka.ilkd.key.core.KeYMediator
 import de.uka.ilkd.key.gui.MainWindow
 import de.uka.ilkd.key.gui.actions.KeyAction
+import de.uka.ilkd.key.gui.colors.ColorSettings
 import de.uka.ilkd.key.gui.extension.api.TabPanel
 import de.uka.ilkd.key.gui.fonticons.*
 import de.uka.ilkd.key.proof.Proof
-import kotlinx.datetime.LocalDateTime
 import io.github.wadoon.key.interactionlog.algo.MUProofScriptExport
 import io.github.wadoon.key.interactionlog.algo.MarkdownExport
 import io.github.wadoon.key.interactionlog.algo.toHtml
-import io.github.wadoon.key.interactionlog.model.Interaction
-import io.github.wadoon.key.interactionlog.model.InteractionRecorderListener
-import io.github.wadoon.key.interactionlog.model.InteractionLog
-import io.github.wadoon.key.interactionlog.model.NodeInteraction
-import io.github.wadoon.key.interactionlog.model.UserNoteInteraction
+import io.github.wadoon.key.interactionlog.model.*
+import kotlinx.datetime.toJavaLocalDateTime
 import org.ocpsoft.prettytime.PrettyTime
 import java.awt.*
 import java.awt.datatransfer.DataFlavor
@@ -181,7 +178,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
         if (currentProof != null) {
             val file = currentProof!!.proofFile
             if (file != null)
-                fileChooser.currentDirectory = file.parentFile
+                fileChooser.currentDirectory = file.parent.toFile()
         }
         return fileChooser
     }
@@ -328,8 +325,8 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
     private inner class ToggleFavouriteAction() : KeyAction() {
         init {
             name = "Toggle Fav"
-            putValue(Action.MNEMONIC_KEY, KeyEvent.VK_F)
-            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK))
+            putValue(MNEMONIC_KEY, KeyEvent.VK_F)
+            putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK))
             setIcon(ICON_TOGGLE_FAVOURITE.get(SMALL_ICON_SIZE))
             menuPath = MENU_ILOG
             lookupAcceleratorKey()
@@ -345,7 +342,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
     private inner class JumpIntoTreeAction() : KeyAction() {
         init {
             name = "Jump into tree"
-            putValue(Action.SMALL_ICON, JUMP_INTO_TREE.get())
+            putValue(SMALL_ICON, JUMP_INTO_TREE.get())
             menuPath = MENU_ILOG
             lookupAcceleratorKey()
         }
@@ -358,17 +355,15 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
                     val node = current.getNode(proof)
                     mediator.selectionModel.selectedNode = node
                 }
-            } catch (ex: ClassCastException) {
-                //ignore
+            } catch (_: ClassCastException) {
             }
-
         }
     }
 
     private inner class TryReapplyAction() : KeyAction() {
         init {
-            putValue(Action.NAME, "Re-apply action")
-            putValue(Action.SMALL_ICON, INTERLOG_TRY_APPLY.get())
+            putValue(NAME, "Re-apply action")
+            putValue(SMALL_ICON, INTERLOG_TRY_APPLY.get())
             menuPath = MENU_ILOG
             lookupAcceleratorKey()
         }
@@ -379,7 +374,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
                 //Reapplication should be ignored by the logging.
                 InteractionLogExt.disableLogging()
                 inter.reapplyStrict(mediator.ui, mediator.selectedGoal)
-            } catch (ex: UnsupportedOperationException) {
+            } catch (_: UnsupportedOperationException) {
                 JOptionPane.showMessageDialog(
                     null,
                     String.format(
@@ -410,7 +405,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
     private inner class ExportKPSAction : AbstractFileSaveAction() {
         init {
             name = "Export as KPS …"
-            putValue(Action.SHORT_DESCRIPTION, "Export the current log into the KPS format.")
+            putValue(SHORT_DESCRIPTION, "Export the current log into the KPS format.")
             setIcon(INTERLOG_EXPORT_KPS.get())
             menuPath = MENU_ILOG_EXPORT
             lookupAcceleratorKey()
@@ -429,7 +424,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
     private inner class ExportMarkdownAction : AbstractFileSaveAction() {
         init {
             name = "Export as markdown …"
-            putValue(Action.SHORT_DESCRIPTION, "Export the current log into a markdown file.")
+            putValue(SHORT_DESCRIPTION, "Export the current log into a markdown file.")
             setIcon(ICON_MARKDOWN.get(SMALL_ICON_SIZE))
             menuPath = MENU_ILOG_EXPORT
             lookupAcceleratorKey()
@@ -448,7 +443,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
     private inner class ShowExtendedActionsAction : KeyAction() {
         init {
             name = "More …"
-            putValue(Action.SHORT_DESCRIPTION, "Shows further options")
+            putValue(SHORT_DESCRIPTION, "Shows further options")
             setIcon(INTERLOW_EXTENDED_ACTIONS.get())
             lookupAcceleratorKey()
         }
@@ -479,19 +474,19 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
         val ICON_MARKDOWN = IconFontProvider(FontAwesomeBrands.MARKDOWN)
         val ICON_SHOW = IconFontProvider(FontAwesomeSolid.BOOK_OPEN)
 
-        val INTERLOG_LOAD: IconProvider = IconFontProvider(FontAwesomeSolid.TRUCK_LOADING)
-        val INTERLOG_SAVE: IconProvider = IconFontProvider(FontAwesomeRegular.SAVE)
-        val INTERLOG_ADD_USER_NOTE: IconProvider = IconFontProvider(FontAwesomeRegular.STICKY_NOTE)
-        val INTERLOG_TOGGLE_FAV: IconProvider = IconFontProvider(FontAwesomeSolid.HEART)
-        val JUMP_INTO_TREE: IconProvider = IconFontProvider(FontAwesomeSolid.MAP_MARKED)
-        val INTERLOG_TRY_APPLY: IconProvider = IconFontProvider(FontAwesomeSolid.REDO)
-        val INTERLOG_EXPORT_KPS: IconProvider = IconFontProvider(FontAwesomeSolid.FILE_EXPORT)
-        val INTERLOG_EXPORT_MARKDOWN: IconProvider = IconFontProvider(FontAwesomeSolid.FILE_EXPORT)
-        val INTERLOW_EXTENDED_ACTIONS: IconProvider = IconFontProvider(FontAwesomeSolid.WRENCH)
-        val INTERLOG_RESUME: IconProvider = IconFontProvider(FontAwesomeSolid.PAUSE_CIRCLE)
-        val INTERLOG_PAUSE: IconProvider = IconFontProvider(FontAwesomeSolid.PLAY_CIRCLE)
-        val INTERLOG_ICON: IconProvider = IconFontProvider(FontAwesomeSolid.BOOK)
-        val ICON_SAVE_AS: IconProvider = IconFontProvider(FontAwesomeSolid.FILE_CODE)
+        val INTERLOG_LOAD = IconFontProvider(FontAwesomeSolid.TRUCK_LOADING)
+        val INTERLOG_SAVE = IconFontProvider(FontAwesomeRegular.SAVE)
+        val INTERLOG_ADD_USER_NOTE = IconFontProvider(FontAwesomeRegular.STICKY_NOTE)
+        val INTERLOG_TOGGLE_FAV = IconFontProvider(FontAwesomeSolid.HEART)
+        val JUMP_INTO_TREE = IconFontProvider(FontAwesomeSolid.MAP_MARKED)
+        val INTERLOG_TRY_APPLY = IconFontProvider(FontAwesomeSolid.REDO)
+        val INTERLOG_EXPORT_KPS = IconFontProvider(FontAwesomeSolid.FILE_EXPORT)
+        val INTERLOG_EXPORT_MARKDOWN = IconFontProvider(FontAwesomeSolid.FILE_EXPORT)
+        val INTERLOW_EXTENDED_ACTIONS = IconFontProvider(FontAwesomeSolid.WRENCH)
+        val INTERLOG_RESUME = IconFontProvider(FontAwesomeSolid.PAUSE_CIRCLE)
+        val INTERLOG_PAUSE = IconFontProvider(FontAwesomeSolid.PLAY_CIRCLE)
+        val INTERLOG_ICON = IconFontProvider(FontAwesomeSolid.BOOK)
+        val ICON_SAVE_AS = IconFontProvider(FontAwesomeSolid.FILE_CODE)
 
         val INTERACTION_LOG_ICON = INTERLOG_ICON.get()
         val SMALL_ICON_SIZE = 16f
@@ -574,11 +569,11 @@ internal class InteractionCellRenderer : JPanel(), ListCellRenderer<Interaction>
         //df.format(value.created)
 
         lblText.text = value.toString()
-        lblIconRight.text = prettyTime.format(value.created)
+        lblIconRight.text = prettyTime.format(value.created.toJavaLocalDateTime())
         lblIconRight.icon = if (value.isFavoured) iconHeart else null
 
         border = if (value.isFavoured)
-            BorderFactory.createLineBorder(COLOR_FAVOURED) else null
+            BorderFactory.createLineBorder(COLOR_FAVOURED.get()) else null
 
         componentOrientation = list.componentOrientation
 
@@ -625,18 +620,12 @@ internal class InteractionCellRenderer : JPanel(), ListCellRenderer<Interaction>
     }
 
     companion object {
-        //private val df = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        private val COLOR_FAVOURED = Color(0xFFD373)
+        private val COLOR_FAVOURED =
+            ColorSettings.define(
+                "interactionlog.favoured",
+                "Color for favoured/marked actions inside the interaction log",
+                Color(0xFFD373),
+                Color(0x005353)
+            )
     }
 }
-
-private fun PrettyTime.format(created: LocalDateTime): String = format(
-    java.time.LocalDateTime.of(
-        created.year,
-        created.month,
-        created.dayOfMonth,
-        created.hour,
-        created.minute,
-        created.second
-    )
-)

@@ -2,15 +2,20 @@ package io.github.wadoon.key.interactionlog.model
 
 import de.uka.ilkd.key.java.Services
 import de.uka.ilkd.key.logic.*
-import de.uka.ilkd.key.logic.op.SchemaVariable
-import de.uka.ilkd.key.macros.scripts.ScriptException
 import de.uka.ilkd.key.nparser.KeyIO
 import de.uka.ilkd.key.pp.LogicPrinter
 import de.uka.ilkd.key.proof.Goal
-import de.uka.ilkd.key.proof.rulefilter.TacletFilter
 import de.uka.ilkd.key.rule.*
+import de.uka.ilkd.key.scripts.ScriptException
 import de.uka.ilkd.key.util.parsing.BuildingExceptions
 import org.key_project.logic.Name
+import org.key_project.logic.PosInTerm
+import org.key_project.logic.Term
+import org.key_project.logic.op.sv.SchemaVariable
+import org.key_project.prover.proof.rulefilter.TacletFilter
+import org.key_project.prover.rules.RuleApp
+import org.key_project.prover.sequent.PosInOccurrence
+import org.key_project.prover.sequent.SequentFormula
 import org.key_project.util.collection.ImmutableMapEntry
 
 class RuleHelper(
@@ -44,6 +49,7 @@ class RuleHelper(
             return theApp.let { instantiateTacletApp(it) }
         }
 
+        @Suppress("RedundantNullableReturnType")
         val localApp: NoPosTacletApp? = goal.indexOfTaclets().lookup(rulename)
         if (localApp != null) {
             if (localApp.taclet() is FindTaclet) {
@@ -76,7 +82,7 @@ class RuleHelper(
                 result = it
                 recheckMatchConditions = true
             }
-        recheckMatchConditions = recheckMatchConditions and (result.uninstantiatedVars()?.isEmpty != true)
+        recheckMatchConditions = recheckMatchConditions && !result.uninstantiatedVars().isEmpty
         for (sv: SchemaVariable in result.uninstantiatedVars()) {
             if (result.isInstantiationRequired(sv)) {
                 val inst: Term = term(sv)
@@ -168,7 +174,7 @@ class RuleHelper(
     }
 
     fun findTacletApps(): List<TacletApp> {
-        val filter: TacletFilter = TacletPredicate(rulename)
+        val filter = TacletPredicate(rulename)
         val index = goal.ruleAppIndex()
         index.autoModeStopped()
         val allApps = ArrayList<TacletApp>()
@@ -184,7 +190,7 @@ class RuleHelper(
             throw ScriptException("Could not find taclet by position")
 
 
-        for (sf: SequentFormula in goal.node().sequent().antecedent()) {
+        for (sf in goal.node().sequent().antecedent()) {
             if (!isFormulaSearchedFor(sf)) {
                 continue
             }
@@ -213,7 +219,7 @@ class RuleHelper(
     private fun isFormulaSearchedFor(sf: SequentFormula): Boolean {
         val formula = occId?.toplevelFormula
         if (formula != null) {
-            val actual = sf.formula().formatTermString(services)
+            val actual = (sf.formula() as JTerm).formatTermString(services)
             if (actual == formula) {
                 return true
             }
@@ -236,11 +242,7 @@ class RuleHelper(
 fun TacletApp.arguments(): Map<String, String> = instantiations().pairIterator().asSequence()
     .map { (k, v) ->
         val inst = v.instantiation
-        val s = if (inst is Term) {
-            LogicPrinter.quickPrintTerm(inst, null)
-        } else {
-            inst.toString()
-        }
+        val s = if (inst is JTerm) LogicPrinter.quickPrintTerm(inst, null) else inst.toString()
         k.toString() to s
     }.toMap()
 
@@ -254,13 +256,11 @@ private operator fun <S : Any, T> ImmutableMapEntry<S, T>.component2() = value()
  * @param services the services object
  * @return The original without spaces and line breaks.
  */
-private fun Term.formatTermString(services: Services? = null): String =
+private fun JTerm.formatTermString(services: Services? = null): String =
     LogicPrinter.quickPrintTerm(this, services)
         .replace("[\n \t\r]+", " ")
 
 
-private class TacletPredicate(private val rulename: Name) : TacletFilter() {
-    override fun filter(taclet: Taclet): Boolean {
-        return (taclet.name() == rulename)
-    }
+private class TacletPredicate(private val ruleName: Name) : TacletFilter() {
+    override fun filter(taclet: org.key_project.prover.rules.Taclet) = taclet.name() == ruleName
 }

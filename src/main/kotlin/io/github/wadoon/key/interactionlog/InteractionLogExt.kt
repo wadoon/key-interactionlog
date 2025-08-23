@@ -12,11 +12,9 @@ import de.uka.ilkd.key.proof.Proof
 import io.github.wadoon.key.interactionlog.model.Interaction
 import io.github.wadoon.key.interactionlog.model.InteractionLog
 import io.github.wadoon.key.interactionlog.model.InteractionRecorderListener
-import org.key_project.ui.BoundsPopupMenuListener
 import java.awt.Component
 import java.awt.event.ActionEvent
 import java.io.File
-import java.util.*
 import javax.swing.*
 import javax.swing.filechooser.FileNameExtensionFilter
 
@@ -24,7 +22,7 @@ import javax.swing.filechooser.FileNameExtensionFilter
  * @author Alexander Weigl
  * @version 1 (13.02.19)
  */
-@KeYGuiExtension.Info(name = "Interaction Logging", optional = true, experimental = true, priority = 10000)
+@KeYGuiExtension.Info(name = "Interaction Logging", optional = true, experimental = false, priority = 10000)
 class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExtension.Toolbar,
     InteractionRecorderListener {
     companion object {
@@ -44,7 +42,7 @@ class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExten
     private var autoSaveEnabled: Boolean = false
 
     init {
-        val listener = BoundsPopupMenuListener(true, false)
+        val listener = BoundsPopupMenuListener(scrollBarRequired = true, popupWider = false)
 
         interactionLogSelection.renderer = object : DefaultListCellRenderer() {
             override fun getListCellRendererComponent(
@@ -110,24 +108,10 @@ class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExten
         return toolbar
     }
 
-    override fun getMainMenuActions(mainWindow: MainWindow): List<Action> {
-        return Arrays.asList(
-            /*ilv.actionAddUserNote,
-                ilv.actionExportMarkdown,
-                ilv.actionJumpIntoTree,
-                ilv.actionLoad,
-                ilv.actionSave,
-                ilv.actionTryReapply,
-                ilv.actionKPSExport,
-                ilv.actionToggleFavourite,
-                ilv.actionExportMarkdown,
-                ilv.actionMUCopyClipboard,
-                ilv.actionPauseLogging*/
-        )
-    }
+    override fun getMainMenuActions(mainWindow: MainWindow): List<Action> = listOf()
 
 
-    private inner class PauseLoggingAction : KeyAction() {
+    private class PauseLoggingAction : KeyAction() {
         init {
             isSelected = recorder.isDisableAll
             priority = -1
@@ -159,7 +143,7 @@ class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExten
     }
 
 
-    private inner class LoadAction : KeyAction() {
+    private class LoadAction : KeyAction() {
         init {
             name = "Load"
             putValue(SHORT_DESCRIPTION, "Load Interaction Log")
