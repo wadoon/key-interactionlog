@@ -1,16 +1,25 @@
+/* This file is part of key-abbrevmgr.
+ * key-abbrevmgr is licensed under the GNU General Public License Version 2
+ * SPDX-License-Identifier: GPL-2.0-only
+ */
 package io.github.wadoon.key.interactionlog.algo
 
 import io.github.wadoon.key.interactionlog.model.InteractionLog
-
 import java.io.PrintWriter
 
 /**
  * @author Alexander Weigl
  * @version 1 (09.12.18)
  */
-class KPSProofScriptExport(logbook: InteractionLog, writer: PrintWriter) : MUProofScriptExport(logbook, writer) {
+class KPSProofScriptExport(
+    logbook: InteractionLog,
+    writer: PrintWriter,
+) : MUProofScriptExport(logbook, writer) {
     companion object {
-        fun writeTo(logbook: InteractionLog, writer: PrintWriter) {
+        fun writeTo(
+            logbook: InteractionLog,
+            writer: PrintWriter,
+        ) {
             writer.format("// Proof script: *%s*%n", logbook.name)
             writer.format("// Created at *%s*%n", logbook.created)
         }

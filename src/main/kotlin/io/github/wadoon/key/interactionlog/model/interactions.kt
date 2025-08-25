@@ -1,3 +1,7 @@
+/* This file is part of key-abbrevmgr.
+ * key-abbrevmgr is licensed under the GNU General Public License Version 2
+ * SPDX-License-Identifier: GPL-2.0-only
+ */
 @file:Suppress("unused")
 
 package io.github.wadoon.key.interactionlog.model
@@ -311,9 +315,9 @@ class UserNoteInteraction(var note: String = "") : Interaction() {
     override val markdown: String
         get() = """
                 ## Note
-                
-                **Date**: $created 
-                
+
+                **Date**: $created
+
                 > ${note.replace("\n", "\n> ")}
                 """.trimIndent()
 
@@ -337,7 +341,7 @@ class SettingChangeInteraction() : Interaction() {
             # Setting changed: ${type?.name}
 
             **Date**: $created
-            
+
             """.trimIndent() + """
                 |```
                 |${savedSettings}
@@ -397,12 +401,12 @@ class AutoModeInteraction(
 
             return """
             ## Apply auto strategy
-            
+
             **Date**: $created
-    
+
             * Started on node:
-            $initialNodes 
-            
+            $initialNodes
+
             ${
                 if (openGoalNodeIds.isEmpty()) "* **Closed all goals**"
                 else "* Finished on nodes:"
@@ -412,7 +416,7 @@ class AutoModeInteraction(
             * Provided Macro info:
               * Info message: $infoMessage
               * Time $timeInMillis ms
-              * Applied rules: $appliedRuleAppsCount 
+              * Applied rules: $appliedRuleAppsCount
               * Error message: $errorMessage
               * Closed goals $nrClosedGoals
             """.trimIndent()
@@ -480,11 +484,11 @@ class RuleInteraction() : NodeInteraction() {
 
             return """
             ## Rule `$ruleName` applied
-            
+
             **Date**: $created
-            
+
             * Applied on `$formula`
-            * The used parameter for the taclet instantation are             
+            * The used parameter for the taclet instantation are
             """.trimIndent() +
                     if (arguments.isEmpty()) "empty" else parameters
         }

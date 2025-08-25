@@ -1,3 +1,7 @@
+/* This file is part of key-abbrevmgr.
+ * key-abbrevmgr is licensed under the GNU General Public License Version 2
+ * SPDX-License-Identifier: GPL-2.0-only
+ */
 plugins {
     kotlin("jvm") version "2.2.10"
     kotlin("plugin.serialization") version "2.2.10"
@@ -7,6 +11,7 @@ plugins {
     id("org.jetbrains.dokka") version "2.0.0"
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
     id("com.gradleup.shadow") version "9.0.1"
+    id("com.diffplug.spotless") version "7.2.1"
 }
 
 group = "io.github.wadoon.key"
@@ -34,12 +39,12 @@ dependencies {
     implementation("org.ocpsoft.prettytime:prettytime:5.0.9.Final")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1-0.6.x-compat")
 
-    compileOnly("org.key-project:key.core:${keyVersion}")
-    compileOnly("org.key-project:key.ui:${keyVersion}")
+    compileOnly("org.key-project:key.core:$keyVersion")
+    compileOnly("org.key-project:key.ui:$keyVersion")
     compileOnly("org.slf4j:slf4j-api:2.0.17")
 
-    testImplementation("org.key-project:key.core:${keyVersion}")
-    testImplementation("org.key-project:key.ui:${keyVersion}")
+    testImplementation("org.key-project:key.core:$keyVersion")
+    testImplementation("org.key-project:key.ui:$keyVersion")
     testImplementation("com.google.truth:truth:1.4.4")
     testImplementation("org.slf4j:slf4j-simple:2.0.17")
 
@@ -108,7 +113,6 @@ publishing {
     }
 }
 
-
 nexusPublishing {
     repositories {
         create("central") {
@@ -122,5 +126,26 @@ nexusPublishing {
             username.set(user)
             password.set(pwd)
         }
+    }
+}
+
+// version and style are optional
+spotless {
+    kotlin {
+        target("**/*.kt", "**/*.kts")
+        licenseHeader(
+            """
+                |/* This file is part of key-abbrevmgr.
+                | * key-abbrevmgr is licensed under the GNU General Public License Version 2
+                | * SPDX-License-Identifier: GPL-2.0-only
+                | */
+            """.trimMargin(),
+        ).delimiter("^(package |@file|import |plugins )")
+        val editorConfigPath = File(rootDir, ".editorconfig")
+        println("$editorConfigPath  ${editorConfigPath.exists()}")
+        ktlint("1.7.1")
+            .setEditorConfigPath(editorConfigPath)
+        trimTrailingWhitespace()
+        endWithNewline()
     }
 }

@@ -1,12 +1,15 @@
+/* This file is part of key-abbrevmgr.
+ * key-abbrevmgr is licensed under the GNU General Public License Version 2
+ * SPDX-License-Identifier: GPL-2.0-only
+ */
 package io.github.wadoon.key.interactionlog
 
+import io.github.wadoon.key.interactionlog.model.InteractionLog
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
-import io.github.wadoon.key.interactionlog.model.InteractionLog
 import java.io.File
-
 
 /**
  * @author Alexander Weigl
@@ -14,11 +17,12 @@ import java.io.File
  */
 @OptIn(ExperimentalSerializationApi::class)
 object InteractionLogFacade {
-    internal val config = Json {
-        prettyPrint = true
-        prettyPrintIndent = "    "
-        ignoreUnknownKeys = true
-    }
+    internal val config =
+        Json {
+            prettyPrint = true
+            prettyPrintIndent = "    "
+            ignoreUnknownKeys = true
+        }
 
     /**
      * @param inputFile
@@ -37,7 +41,10 @@ object InteractionLogFacade {
      * @param output
      */
     @JvmStatic
-    fun storeInteractionLog(log: InteractionLog, output: File) {
+    fun storeInteractionLog(
+        log: InteractionLog,
+        output: File,
+    ) {
         val out = config.encodeToString(log)
         output.bufferedWriter().use {
             it.write(out)

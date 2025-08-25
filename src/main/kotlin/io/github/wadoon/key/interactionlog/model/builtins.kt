@@ -1,3 +1,7 @@
+/* This file is part of key-abbrevmgr.
+ * key-abbrevmgr is licensed under the GNU General Public License Version 2
+ * SPDX-License-Identifier: GPL-2.0-only
+ */
 @file:Suppress("unused")
 
 package io.github.wadoon.key.interactionlog.model

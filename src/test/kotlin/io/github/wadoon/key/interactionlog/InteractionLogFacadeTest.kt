@@ -1,3 +1,7 @@
+/* This file is part of key-abbrevmgr.
+ * key-abbrevmgr is licensed under the GNU General Public License Version 2
+ * SPDX-License-Identifier: GPL-2.0-only
+ */
 package io.github.wadoon.key.interactionlog
 
 import io.github.wadoon.key.interactionlog.model.InteractionLog
@@ -46,5 +50,4 @@ class InteractionLogFacadeTest {
         println(ol.interactions)
         assertEquals(3, ol.interactions.size)
     }
-
 }

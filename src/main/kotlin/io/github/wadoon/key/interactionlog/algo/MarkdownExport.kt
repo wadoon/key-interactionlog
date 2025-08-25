@@ -1,3 +1,7 @@
+/* This file is part of key-abbrevmgr.
+ * key-abbrevmgr is licensed under the GNU General Public License Version 2
+ * SPDX-License-Identifier: GPL-2.0-only
+ */
 package io.github.wadoon.key.interactionlog.algo
 
 import io.github.wadoon.key.interactionlog.model.Interaction
@@ -14,7 +18,7 @@ private val HOWTO: String = """
 
 ## How to read this document
 
-    
+
 """.trimIndent()
 
 class MarkdownExport(val logbook: InteractionLog, val writer: PrintWriter) {
@@ -45,23 +49,23 @@ It was created on the ${Date()} by user ${System.getenv("user.name")}.
             writer.format(
                 """
             * Statistics: \n" +
-              * autoModeTimeInMillis: ${it.statistics.autoModeTimeInMillis}    
-              * blockLoopContractApps: ${it.statistics.blockLoopContractApps}    
-              * branches: ${it.statistics.branches}    
-              * dependencyContractApps: ${it.statistics.dependencyContractApps}    
-              * interactiveSteps: ${it.statistics.interactiveSteps}    
-              * loopInvApps: ${it.statistics.loopInvApps}    
-              * mergeRuleApps: ${it.statistics.mergeRuleApps}    
-              * nodes: ${it.statistics.nodes}    
-              * operationContractApps: ${it.statistics.operationContractApps}    
-              * ossApps: ${it.statistics.ossApps}    
-              * smtSolverApps: ${it.statistics.smtSolverApps}    
-              * quantifierInstantiations: ${it.statistics.quantifierInstantiations}    
-              * symbExApps:  ${it.statistics.symbExApps}    
-              * timeInMillis:  ${it.statistics.timeInMillis}    
-              * timePerStepInMillis: ${it.statistics.timePerStepInMillis}    
-              * autoModeTimeInMillis: ${it.statistics.autoModeTimeInMillis}    
-              * totalRuleApps: ${it.statistics.totalRuleApps}    
+              * autoModeTimeInMillis: ${it.statistics.autoModeTimeInMillis}
+              * blockLoopContractApps: ${it.statistics.blockLoopContractApps}
+              * branches: ${it.statistics.branches}
+              * dependencyContractApps: ${it.statistics.dependencyContractApps}
+              * interactiveSteps: ${it.statistics.interactiveSteps}
+              * loopInvApps: ${it.statistics.loopInvApps}
+              * mergeRuleApps: ${it.statistics.mergeRuleApps}
+              * nodes: ${it.statistics.nodes}
+              * operationContractApps: ${it.statistics.operationContractApps}
+              * ossApps: ${it.statistics.ossApps}
+              * smtSolverApps: ${it.statistics.smtSolverApps}
+              * quantifierInstantiations: ${it.statistics.quantifierInstantiations}
+              * symbExApps:  ${it.statistics.symbExApps}
+              * timeInMillis:  ${it.statistics.timeInMillis}
+              * timePerStepInMillis: ${it.statistics.timePerStepInMillis}
+              * autoModeTimeInMillis: ${it.statistics.autoModeTimeInMillis}
+              * totalRuleApps: ${it.statistics.totalRuleApps}
                 """.trimIndent()
             )
         }
