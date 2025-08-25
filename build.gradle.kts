@@ -15,7 +15,7 @@ plugins {
 }
 
 group = "io.github.wadoon.key"
-version = "0.9-SNAPSHOT"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -29,9 +29,8 @@ repositories {
 val keyVersion = System.getenv("KEY_VERSION") ?: "2.12.4-SNAPSHOT"
 
 dependencies {
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation(kotlin("stdlib-jdk8"))
     implementation("com.github.ajalt:clikt:2.8.0")
     implementation("org.jetbrains:annotations:26.0.2")
     implementation("com.atlassian.commonmark:commonmark:0.17.0")
@@ -88,6 +87,7 @@ publishing {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
             pom {
+                name = project.name
                 description = "Interaction Logging plugin for the KeY Theorem Prover"
                 url = "https://github.com/wadoon/key-interactionlog"
                 licenses {
@@ -104,9 +104,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:git://github.com/wadoon/key-interactionlog.git")
-                    developerConnection.set("scm:git:git://github.com/wadoon/key-interactionlog.git")
-                    url.set("https://github.com/wadoon/key-interactionlog")
+                    connection = "scm:git:git://github.com/wadoon/key-interactionlog.git"
+                    developerConnection = "scm:git:git://github.com/wadoon/key-interactionlog.git"
+                    url = "https://github.com/wadoon/key-interactionlog"
                 }
             }
         }
@@ -128,6 +128,12 @@ nexusPublishing {
         }
     }
 }
+
+signing {
+    useGpgCmd()
+    sign(publishing.publications["mavenJava"])
+}
+
 
 // version and style are optional
 spotless {

@@ -21,7 +21,7 @@ as a dependency in `build.gradle`. Just add the following lines to `key.ui/build
 ```gradle 
 dependencies {
   //...
-  runtimeOnly("io.github.wadoon.key:key-interactionlog:0.9")
+  runtimeOnly("io.github.wadoon.key:key-interactionlog:1.0.0")
 }
 ```
 
@@ -37,7 +37,7 @@ repositories {
 
 dependencies {
   //...
-  runtimeOnly("io.github.wadoon.key:key-interactionlog:1.1-SNAPSHOT")
+  runtimeOnly("io.github.wadoon.key:key-interactionlog:1.1.0-SNAPSHOT")
 }
 ```
 
@@ -55,7 +55,7 @@ dependencies {
 
    ```
    $ export KEYJAR=key.ui-2.11.0-exe.jar
-   $ export INTERLOGJAR=interactionlog-1.0-SNAPSHOT-all.jar
+   $ export INTERLOGJAR=interactionlog-1.1.0-SNAPSHOT-all.jar
    $ java -cp $KEYJAR:$INTERLOGJAR de.uka.ilkd.key.core.Main --experimental
    ```
    
