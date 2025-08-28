@@ -27,7 +27,7 @@ dependencies {
 
 Current version: ![Maven Central Version](https://img.shields.io/maven-central/v/io.github.wadoon.key/key-interactionlog)
 
-### Using SNAPSHOT version
+#### Using SNAPSHOT version
 
 If you prefer a SNAPSHOT version use the following setup: 
 ```
@@ -41,44 +41,47 @@ dependencies {
 }
 ```
 
-### Mnaual installation
+### Manual installation
 
-1. Download this repository and run the following command line: 
+Receive the key-interactionlog and its dependencies by download from maven central. A download script is provided ([download.sh](https://github.com/wadoon/key-interactionlog/refs/heads/main/download.sh)).
 
-    ```
-    $ gradle :interactionlog:shadowJar
-    ```
+Use: 
+```sh
+$ curl https://raw.githubusercontent.com/wadoon/key-interactionlog/refs/heads/main/download.sh | sh
+```
+or download the Jar files provided as a Zip file: [key-interactionlog-1.0.0.zip](https://github.com/wadoon/key-interactionlog/releases/download/KEY-INTERACTIONLOG-v1.0.0/key-interactionlog-1.0.0.zip)
+
+
+<!--
+`mvn dependency:get -Dartifact=io.github.wadoon.key:key-interactionlog:1.0.0:jars -Dmaven.repo.local=key-interactionlog-jars`
+
+   -DremoteRepositories=https://myrepo.com/maven2
 
     A Jar file should be `interactionlog/build/libs/keyext.interactionlog-*all.jar`.  
+-->
 
-2. Add this Jar file into the KeY's classpath: 
+Start KeY by supplying the downloaded Jar files: 
+```
+$ export INTERACTIONLOG=key-interactionlog-1.0.0
+$ java -cp key-2.12.4-dev-exe.jar:$INTERACTIONLOG/* de.uka.ilkd.key.core.Main
+```
 
-   ```
-   $ export KEYJAR=key.ui-2.11.0-exe.jar
-   $ export INTERLOGJAR=interactionlog-1.1.0-SNAPSHOT-all.jar
-   $ java -cp $KEYJAR:$INTERLOGJAR de.uka.ilkd.key.core.Main --experimental
-   ```
-   
-   `--experimental` currently needed, will be unnecessary if version 1.0 is reached. 
-   
-   Interaction Log should be automatically loaded.
+using the download folder `$INTERACTIONLOG` and the shadow Jar of KeY (`key-2.12.4-dev-exe.jar`).
 
-Note, Interaction Log requires some API changes in KeY, which are part
-of the KeY's master since January 2021. Therefore, InteractionLog is
-**not** useable with KeY 2.10.0 and below.
+Interaction Log should be automatically loaded on start up. A log is created for each loaded proof.
+
+Note, Interaction Log is now compiled against KeY 2.12.4-dev. KeY's ABI/API is unstable, so please use the current main or SNAPSHOT version of KeY. Therefore, key-interactionlog is **not** useable with KeY 2.12.3 and below.
 
 
 ## History
 
-* Version: 0.9 (not finally released)  
+* Version: 1.0.0 (released: 2025-08-25)  
   - The plugin was migrated to this repository to make it finally freely available.
-
+  - Compiled against KEY-2.12.4-dev (current development version).
 
 ## User Interface
 
 ... work in progress ... 
-
-
 
 
 ## Releasing `key-abbrevmgr`
@@ -86,7 +89,9 @@ of the KeY's master since January 2021. Therefore, InteractionLog is
 1. Remove SNAPSHOT from version number
 2. Update `README.md`
 3. Create new commit and tag.
-4. `gradle publishToCentral closeAndReleaseCentralStagingRepository`.
-5. Create new GitHub release
-6. Set version number to SNAPSHOT
+4. `gradle makeDownloadScript`
+5. `bash download.sh && zip -r key-interaction-version.zip key-interaction-version`
+6. `gradle publishToCentral closeAndReleaseCentralStagingRepository`
+7. Create new GitHub release, upload `key-interaction-version.zip`
+8. Set version++, re-add to `SNAPSHOT` and commit.
 

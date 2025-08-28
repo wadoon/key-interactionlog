@@ -2,6 +2,8 @@
  * key-abbrevmgr is licensed under the GNU General Public License Version 2
  * SPDX-License-Identifier: GPL-2.0-only
  */
+import java.net.URI
+
 plugins {
     kotlin("jvm") version "2.2.10"
     kotlin("plugin.serialization") version "2.2.10"
@@ -30,9 +32,9 @@ val keyVersion = System.getenv("KEY_VERSION") ?: "2.12.4-SNAPSHOT"
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-    implementation(kotlin("stdlib-jdk8"))
-    implementation("com.github.ajalt:clikt:2.8.0")
-    implementation("org.jetbrains:annotations:26.0.2")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.10")
+    //implementation("com.github.ajalt:clikt:2.8.0")
+    //implementation("org.jetbrains:annotations:26.0.2")
     implementation("com.atlassian.commonmark:commonmark:0.17.0")
     implementation("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.17.0")
     implementation("org.ocpsoft.prettytime:prettytime:5.0.9.Final")
@@ -155,3 +157,78 @@ spotless {
         endWithNewline()
     }
 }
+
+fun makeDependencyUrl(group: String, name: String, version: String): URI {
+    val url = project.repositories.mavenCentral().url.toString().trimEnd('/')
+    val g = group.replace('.', '/')
+    return uri("$url/$g/$name/$version/$name-$version.jar")
+}
+
+fun makeDependencyUrl(it: Dependency): URI {
+    return makeDependencyUrl(it.group ?: "", it.name, it.version ?: "")
+}
+
+fun dependenciesURLs(): Sequence<URI> {
+    val dependencies = project.configurations.getByName("implementation").dependencies.asSequence()
+    return dependencies.map(::makeDependencyUrl) + sequenceOf(
+        makeDependencyUrl(
+            project.group.toString(),
+            project.name,
+            project.version.toString()
+        )
+    )
+}
+
+tasks.register("makeDownloadScript") {
+    outputs.file("download.sh")
+
+    doLast {
+        val dependenciesURLs = dependenciesURLs()
+        dependenciesURLs.forEach {
+            println(it)
+        }
+
+        file("download.sh").bufferedWriter().use { out ->
+            fun URI.filename(): String = this.path.takeLastWhile { it != '/' }
+            val downloadedJars = dependenciesURLs.map {
+                $$"$TARGET/" + it.filename()
+            }
+
+            val downloads = dependenciesURLs.zip(downloadedJars)
+                .joinToString("") { (u, f) ->
+                    "|download '$u'\\\n" +
+                    "|         \"$f\"\n"
+                }
+
+            out.write(
+                $$"""
+                |#!/bin/sh
+                
+                |TARGET=$(readlink -f "$${project.name}-$${project.version}")
+                
+                |mkdir -p $TARGET
+                |function download() {
+                |    # Use curl or wget
+                |    if command -v wget >/dev/null 2>&1; then
+                |        wget -timestamping -O    "$2" "$1"
+                |    elif command -v curl >/dev/null 2>&1; then
+                |        curl -L -o "$2" "$1"
+                |    else
+                |        echo "Error: Neither curl nor wget is installed."
+                |        exit 1
+                |    fi
+                |}
+            
+                $$downloads
+                 
+                |echo "Extend your classpath by following Jars, either using the whole folder, or by single Jars."
+                |echo "java -cp key-2.14.4-dev.jar:$TARGET/*"
+                |echo "or: java -cp key-2.14.4-dev.jar:$${downloadedJars.joinToString(":")}"                
+                """.trimMargin()
+            )
+
+
+        }
+    }
+}
+
