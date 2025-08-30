@@ -1,5 +1,5 @@
-/* This file is part of key-abbrevmgr.
- * key-abbrevmgr is licensed under the GNU General Public License Version 2
+/* This file is part of key-interactionlog.
+ * key-interactionlog is licensed under the GNU General Public License Version 2
  * SPDX-License-Identifier: GPL-2.0-only
  */
 package io.github.wadoon.key.interactionlog.algo
@@ -14,7 +14,7 @@ import java.util.function.Function
 /**
  * @author weigl
  */
-class LogPrinter() {
+class LogPrinter {
     private var w: StringWriter? = null
     private var out: PrintWriter? = null
     var matchExpr = Function<Node, String> { getBranchingLabel(it) }
@@ -45,18 +45,14 @@ class LogPrinter() {
 
     private fun body() {
         if (state!!.interactions.size != 0) {
-            //HashMap<Interaction, List<Interaction>> tree = state.getInteractionTree();
-            //body(tree, state.getInteractions().get(0));
+            // HashMap<Interaction, List<Interaction>> tree = state.getInteractionTree();
+            // body(tree, state.getInteractions().get(0));
         }
     }
 
-    private fun body(
-        tree: HashMap<Interaction, List<Interaction>>,
-        interaction: Interaction
-    ) {
-
+    private fun body(tree: HashMap<Interaction, List<Interaction>>, interaction: Interaction) {
         newline()
-        //TODO out.write(interaction.getProofScriptRepresentation(services));
+        // TODO out.write(interaction.getProofScriptRepresentation(services));
 
         val children = tree[interaction]
         if (children != null) {
@@ -70,7 +66,7 @@ class LogPrinter() {
                     for (c in children) {
                         newline()
                         out!!.write("case \"")
-                        //TODO out.write(matchExpr.apply(c.getNode()));
+                        // TODO out.write(matchExpr.apply(c.getNode()));
                         out!!.write("\" {")
                         indent++
                         body(tree, c)
@@ -112,10 +108,11 @@ class LogPrinter() {
                 if (p != null && p.childrenCount() != 1) {
                     val branchLabel: String? = n.nodeInfo.branchLabel
                     sb.append(
-                        if (branchLabel != null && !branchLabel.isEmpty())
+                        if (branchLabel != null && !branchLabel.isEmpty()) {
                             branchLabel
-                        else
+                        } else {
                             "#" + p.getChildNr(n)
+                        },
                     )
                         .append(SEPARATOR)
                 }

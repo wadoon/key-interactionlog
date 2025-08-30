@@ -1,5 +1,5 @@
-/* This file is part of key-abbrevmgr.
- * key-abbrevmgr is licensed under the GNU General Public License Version 2
+/* This file is part of key-interactionlog.
+ * key-interactionlog is licensed under the GNU General Public License Version 2
  * SPDX-License-Identifier: GPL-2.0-only
  */
 @file:Suppress("unused")
@@ -65,7 +65,6 @@ data class InteractionLog(val name: String = RandomName.getRandomName(), var cre
     val interactions: List<Interaction>
         get() = _interactions
 
-
     fun add(interaction: Interaction) = _interactions.add(interaction)
     fun remove(interaction: Interaction) = _interactions.remove(interaction)
     fun remove(index: Int) = _interactions.removeAt(index)
@@ -97,7 +96,6 @@ sealed class NodeInteraction() : Interaction() {
 
     fun getNode(proof: Proof): Node? = nodeIdentifier?.findNode(proof)
 }
-
 
 /**
  * @author Alexander Weigl
@@ -157,22 +155,16 @@ class MacroInteraction() : NodeInteraction() {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-
         }
     }
 }
-
 
 /**
  * @author Alexander Weigl
  * @version 1 (06.12.18)
  */
 @Serializable
-data class NodeIdentifier(
-    var treePath: MutableList<Int> = ArrayList(),
-    var branchLabel: String? = null,
-    var serialNr: Int = 0
-) {
+data class NodeIdentifier(var treePath: MutableList<Int> = ArrayList(), var branchLabel: String? = null, var serialNr: Int = 0) {
 
     constructor(vararg seq: Int) : this(seq.toList())
 
@@ -180,12 +172,10 @@ data class NodeIdentifier(
         this.treePath.addAll(seq)
     }
 
-    override fun toString() =
-        treePath.stream()
-            .map { it.toString() }
-            .reduce("") { a, b -> a + b } +
-                " => " + serialNr
-
+    override fun toString() = treePath.stream()
+        .map { it.toString() }
+        .reduce("") { a, b -> a + b } +
+        " => " + serialNr
 
     fun findNode(proof: Proof) = findNode(proof.root())
 
@@ -229,7 +219,7 @@ class PruneInteraction() : NodeInteraction() {
 
             * **Date**: $created
             * Prune to node: `$nodeIdentifier`
-            """.trimIndent()
+        """.trimIndent()
 
     override val proofScriptRepresentation: String
         get() = "prune $nodeIdentifier\n"
@@ -241,7 +231,6 @@ class PruneInteraction() : NodeInteraction() {
         serialNr = node.serialNr()
     }
 
-
     @Throws(Exception::class)
     override fun reapplyStrict(uic: AbstractMediatorUserInterfaceControl, goal: Goal) {
         nodeIdentifier?.findNode(goal.proof())?.also {
@@ -249,7 +238,6 @@ class PruneInteraction() : NodeInteraction() {
         }
     }
 }
-
 
 /**
  * @author Alexander Weigl
@@ -264,24 +252,23 @@ class OccurenceIdentifier {
     var formulaNumber: Int = 0
     var isAntec: Boolean = false
 
-    override fun toString(): String {
-        return path?.let {
-            if (it.isNotEmpty()) {
-                "$term under $toplevelFormula(Path: ${path.contentToString()})"
-            } else {
-                "$term @toplevel"
-            }
-        } ?: " @toplevel"
-    }
+    override fun toString(): String = path?.let {
+        if (it.isNotEmpty()) {
+            "$term under $toplevelFormula(Path: ${path.contentToString()})"
+        } else {
+            "$term @toplevel"
+        }
+    } ?: " @toplevel"
 
     fun rebuildOn(goal: Goal) = rebuildOn(goal.node().sequent())
 
     private fun rebuildOn(seq: Sequent): PosInOccurrence {
         val path = path
-        val pit = if (path != null && path.isNotEmpty())
+        val pit = if (path != null && path.isNotEmpty()) {
             PosInTerm(path.toIntArray())
-        else
+        } else {
             PosInTerm.getTopLevel()
+        }
 
         return PosInOccurrence.findInSequent(seq, formulaNumber, pit)
     }
@@ -308,7 +295,6 @@ class OccurenceIdentifier {
     }
 }
 
-
 @Serializable
 class UserNoteInteraction(var note: String = "") : Interaction() {
 
@@ -319,7 +305,7 @@ class UserNoteInteraction(var note: String = "") : Interaction() {
                 **Date**: $created
 
                 > ${note.replace("\n", "\n> ")}
-                """.trimIndent()
+        """.trimIndent()
 
     init {
         graphicalStyle.backgroundColor = Color.red.brighter().brighter().brighter()
@@ -327,7 +313,6 @@ class UserNoteInteraction(var note: String = "") : Interaction() {
 
     override fun toString(): String = note
 }
-
 
 @Serializable
 class SettingChangeInteraction() : Interaction() {
@@ -344,7 +329,7 @@ class SettingChangeInteraction() : Interaction() {
 
             """.trimIndent() + """
                 |```
-                |${savedSettings}
+                |$savedSettings
                 |```
                 |
             """.trimMargin()
@@ -378,10 +363,7 @@ class SettingChangeInteraction() : Interaction() {
     }
 }
 
-
-private fun Properties.toStringMap(): Map<String, String> =
-    asSequence().map { (k, v) -> k.toString() to v.toString() }.toMap()
-
+private fun Properties.toStringMap(): Map<String, String> = asSequence().map { (k, v) -> k.toString() to v.toString() }.toMap()
 
 @Serializable
 class AutoModeInteraction(
@@ -389,7 +371,7 @@ class AutoModeInteraction(
     var timeInMillis: Long = 0,
     var appliedRuleAppsCount: Int = 0,
     var errorMessage: String? = null,
-    var nrClosedGoals: Int = 0
+    var nrClosedGoals: Int = 0,
 ) : Interaction() {
     var initialNodeIds: List<NodeIdentifier> = arrayListOf()
     var openGoalNodeIds: List<NodeIdentifier> = arrayListOf()
@@ -408,8 +390,11 @@ class AutoModeInteraction(
             $initialNodes
 
             ${
-                if (openGoalNodeIds.isEmpty()) "* **Closed all goals**"
-                else "* Finished on nodes:"
+                if (openGoalNodeIds.isEmpty()) {
+                    "* **Closed all goals**"
+                } else {
+                    "* Finished on nodes:"
+                }
             }}
             $finalNodes
 
@@ -430,7 +415,7 @@ class AutoModeInteraction(
         info.time,
         info.numberOfAppliedRuleApps,
         info.exception?.message,
-        info.numberOfClosedGoals
+        info.numberOfClosedGoals,
     ) {
         this.initialNodeIds = initialNodes.map { NodeIdentifier.create(it) }
         val openGoals = info.proof.openGoals()
@@ -444,7 +429,6 @@ class AutoModeInteraction(
         uic.proofControl.startAutoMode(goal.proof(), goal.proof().openGoals(), uic)
     }
 }
-
 
 /**
  * @author weigl
@@ -470,8 +454,7 @@ class RuleInteraction() : NodeInteraction() {
                 sb.append("\n    formula=`").append(sfTerm).append("`");
                 sb.append("\n    on=`").append(onTerm).append("`");
                 sb.append("\n    occ=?;");
-                */
-
+             */
         }
     }
 
@@ -490,17 +473,19 @@ class RuleInteraction() : NodeInteraction() {
             * Applied on `$formula`
             * The used parameter for the taclet instantation are
             """.trimIndent() +
-                    if (arguments.isEmpty()) "empty" else parameters
+                if (arguments.isEmpty()) "empty" else parameters
         }
 
     override val proofScriptRepresentation: String
         get() {
             val args =
-                if (arguments.isEmpty()) ""
-                else
+                if (arguments.isEmpty()) {
+                    ""
+                } else {
                     arguments.map { (k, v) ->
                         "                 inst_${firstWord(k)} = \"${v.trim { it <= ' ' }}\"\n"
                     }.joinToString("\n")
+                }
 
             return """
             rule $ruleName

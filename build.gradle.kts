@@ -1,5 +1,5 @@
-/* This file is part of key-abbrevmgr.
- * key-abbrevmgr is licensed under the GNU General Public License Version 2
+/* This file is part of key-interactionlog.
+ * key-interactionlog is licensed under the GNU General Public License Version 2
  * SPDX-License-Identifier: GPL-2.0-only
  */
 import java.net.URI
@@ -33,8 +33,8 @@ val keyVersion = System.getenv("KEY_VERSION") ?: "2.12.4-SNAPSHOT"
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.10")
-    //implementation("com.github.ajalt:clikt:2.8.0")
-    //implementation("org.jetbrains:annotations:26.0.2")
+    // implementation("com.github.ajalt:clikt:2.8.0")
+    // implementation("org.jetbrains:annotations:26.0.2")
     implementation("com.atlassian.commonmark:commonmark:0.17.0")
     implementation("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.17.0")
     implementation("org.ocpsoft.prettytime:prettytime:5.0.9.Final")
@@ -136,15 +136,14 @@ signing {
     sign(publishing.publications["mavenJava"])
 }
 
-
 // version and style are optional
 spotless {
     kotlin {
         target("**/*.kt", "**/*.kts")
         licenseHeader(
             """
-                |/* This file is part of key-abbrevmgr.
-                | * key-abbrevmgr is licensed under the GNU General Public License Version 2
+                |/* This file is part of key-interactionlog.
+                | * key-interactionlog is licensed under the GNU General Public License Version 2
                 | * SPDX-License-Identifier: GPL-2.0-only
                 | */
             """.trimMargin(),
@@ -158,25 +157,37 @@ spotless {
     }
 }
 
-fun makeDependencyUrl(group: String, name: String, version: String): URI {
-    val url = project.repositories.mavenCentral().url.toString().trimEnd('/')
+fun makeDependencyUrl(
+    group: String,
+    name: String,
+    version: String,
+): URI {
+    val url =
+        project.repositories
+            .mavenCentral()
+            .url
+            .toString()
+            .trimEnd('/')
     val g = group.replace('.', '/')
     return uri("$url/$g/$name/$version/$name-$version.jar")
 }
 
-fun makeDependencyUrl(it: Dependency): URI {
-    return makeDependencyUrl(it.group ?: "", it.name, it.version ?: "")
-}
+fun makeDependencyUrl(it: Dependency): URI = makeDependencyUrl(it.group ?: "", it.name, it.version ?: "")
 
 fun dependenciesURLs(): Sequence<URI> {
-    val dependencies = project.configurations.getByName("implementation").dependencies.asSequence()
-    return dependencies.map(::makeDependencyUrl) + sequenceOf(
-        makeDependencyUrl(
-            project.group.toString(),
-            project.name,
-            project.version.toString()
+    val dependencies =
+        project.configurations
+            .getByName("implementation")
+            .dependencies
+            .asSequence()
+    return dependencies.map(::makeDependencyUrl) +
+        sequenceOf(
+            makeDependencyUrl(
+                project.group.toString(),
+                project.name,
+                project.version.toString(),
+            ),
         )
-    )
 }
 
 tasks.register("makeDownloadScript") {
@@ -190,22 +201,25 @@ tasks.register("makeDownloadScript") {
 
         file("download.sh").bufferedWriter().use { out ->
             fun URI.filename(): String = this.path.takeLastWhile { it != '/' }
-            val downloadedJars = dependenciesURLs.map {
-                $$"$TARGET/" + it.filename()
-            }
-
-            val downloads = dependenciesURLs.zip(downloadedJars)
-                .joinToString("") { (u, f) ->
-                    "|download '$u'\\\n" +
-                    "|         \"$f\"\n"
+            val downloadedJars =
+                dependenciesURLs.map {
+                    $$"$TARGET/" + it.filename()
                 }
+
+            val downloads =
+                dependenciesURLs
+                    .zip(downloadedJars)
+                    .joinToString("") { (u, f) ->
+                        "|download '$u'\\\n" +
+                            "|         \"$f\"\n"
+                    }
 
             out.write(
                 $$"""
                 |#!/bin/sh
-                
+
                 |TARGET=$(readlink -f "$${project.name}-$${project.version}")
-                
+
                 |mkdir -p $TARGET
                 |function download() {
                 |    # Use curl or wget
@@ -218,17 +232,14 @@ tasks.register("makeDownloadScript") {
                 |        exit 1
                 |    fi
                 |}
-            
+
                 $$downloads
-                 
+
                 |echo "Extend your classpath by following Jars, either using the whole folder, or by single Jars."
                 |echo "java -cp key-2.14.4-dev.jar:$TARGET/*"
-                |echo "or: java -cp key-2.14.4-dev.jar:$${downloadedJars.joinToString(":")}"                
-                """.trimMargin()
+                |echo "or: java -cp key-2.14.4-dev.jar:$${downloadedJars.joinToString(":")}"
+                """.trimMargin(),
             )
-
-
         }
     }
 }
-

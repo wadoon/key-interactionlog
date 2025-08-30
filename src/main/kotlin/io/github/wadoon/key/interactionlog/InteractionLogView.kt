@@ -1,5 +1,5 @@
-/* This file is part of key-abbrevmgr.
- * key-abbrevmgr is licensed under the GNU General Public License Version 2
+/* This file is part of key-interactionlog.
+ * key-interactionlog is licensed under the GNU General Public License Version 2
  * SPDX-License-Identifier: GPL-2.0-only
  */
 package io.github.wadoon.key.interactionlog
@@ -36,8 +36,9 @@ import javax.swing.*
 import javax.swing.border.Border
 import javax.swing.text.html.HTMLEditorKit
 
-
-class InteractionLogView(val interactionLog: InteractionLog, private var mediator: KeYMediator) : JPanel(), TabPanel {
+class InteractionLogView(val interactionLog: InteractionLog, private var mediator: KeYMediator) :
+    JPanel(),
+    TabPanel {
     val actionExportProofScript: KeyAction = ExportMUScriptAction()
     val actionKPSExport: KeyAction = ExportKPSAction()
     val actionSave: KeyAction = SaveAction()
@@ -48,7 +49,6 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
     val actionExportMarkdown: KeyAction = ExportMarkdownAction()
     val actionShowExtended: KeyAction = ShowExtendedActionsAction()
     val actionMUCopyClipboard: KeyAction = ExportMUScriptClipboardAction()
-
 
     val listInteraction = JList<Interaction>()
     val interactionListModel = DefaultListModel<Interaction>()
@@ -87,13 +87,12 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
         popup.add(JMenuItem(actionAddUserNote))
         listInteraction.componentPopupMenu = popup
 
-
         listInteraction.addMouseMotionListener(object : MouseMotionAdapter() {
             override fun mouseMoved(e: MouseEvent?) {
                 val l = e!!.source as JList<*>
                 val index = l.locationToIndex(e.point)
                 if (index > -1) {
-                    //val inter = m.getElementAt(index) as Interaction
+                    // val inter = m.getElementAt(index) as Interaction
                     // weigl: disabled on my system, the tooltips lead to a crash of the window manager
                     // l.toolTipText = "<html>" + MarkdownExport.getHtml(inter) + "</html>"
                     l.toolTipText = "Tooltips are deactivated due to a Swing bug."
@@ -101,24 +100,28 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
             }
         })
 
-        DropTarget(listInteraction, 0, object : DropTargetAdapter() {
-            override fun drop(dtde: DropTargetDropEvent) {
-                val tr = dtde.transferable
-                try {
-                    val textFlavour = tr.getTransferData(DataFlavor.stringFlavor)
-                    dtde.acceptDrop(dtde.dropAction)
-                    dtde.dropComplete(true)
-                    SwingUtilities.invokeLater { (actionAddUserNote as AddUserNoteAction).doAddNote(textFlavour.toString()) }
-                    return
-                } catch (e: UnsupportedFlavorException) {
-                    e.printStackTrace()
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
+        DropTarget(
+            listInteraction,
+            0,
+            object : DropTargetAdapter() {
+                override fun drop(dtde: DropTargetDropEvent) {
+                    val tr = dtde.transferable
+                    try {
+                        val textFlavour = tr.getTransferData(DataFlavor.stringFlavor)
+                        dtde.acceptDrop(dtde.dropAction)
+                        dtde.dropComplete(true)
+                        SwingUtilities.invokeLater { (actionAddUserNote as AddUserNoteAction).doAddNote(textFlavour.toString()) }
+                        return
+                    } catch (e: UnsupportedFlavorException) {
+                        e.printStackTrace()
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
 
-                dtde.rejectDrop()
-            }
-        })
+                    dtde.rejectDrop()
+                }
+            },
+        )
 
         layout = BorderLayout()
         add(panelButtons, BorderLayout.NORTH)
@@ -133,15 +136,16 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
         }
 
         val tabDetails = JTabbedPane().apply {
-            //border = BorderFactory.createTitledBorder("Details")
+            // border = BorderFactory.createTitledBorder("Details")
             addTab("Details", JScrollPane(txtDetails))
             addTab("MU Script", JScrollPane(txtScript))
         }
 
         val splitPane = JSplitPane(
-            JSplitPane.VERTICAL_SPLIT, true,
+            JSplitPane.VERTICAL_SPLIT,
+            true,
             JScrollPane(listInteraction),
-            tabDetails
+            tabDetails,
         )
         splitPane.isOneTouchExpandable = true
         add(splitPane)
@@ -152,7 +156,6 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
                 txtScript.text = joinToString("\n") { it.proofScriptRepresentation }
             }
         }
-
 
         val pSouth = JPanel()
         pSouth.add(JLabel("Proof: "))
@@ -181,30 +184,24 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
     private fun getFileChooser(): JFileChooser {
         if (currentProof != null) {
             val file = currentProof!!.proofFile
-            if (file != null)
+            if (file != null) {
                 fileChooser.currentDirectory = file.parent.toFile()
+            }
         }
         return fileChooser
     }
 
-    override fun getTitle(): String {
-        return interactionLog.name
-    }
+    override fun getTitle(): String = interactionLog.name
 
-    override fun getIcon(): Icon? {
-        return INTERACTION_LOG_ICON
-    }
+    override fun getIcon(): Icon? = INTERACTION_LOG_ICON
 
-    override fun getComponent(): JComponent {
-        return this
-    }
+    override fun getComponent(): JComponent = this
 
     val dockable by lazy {
         val d = DefaultMultipleCDockable(NullMultipleCDockableFactory.NULL, icon, title, this, permissions)
         d.isCloseable = true
         d
     }
-
 
     private inner class BindToCurrentProofAction : KeyAction() {
         init {
@@ -232,7 +229,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
         }
     }
 
-    private inner class ExportMUScriptAction() : AbstractFileSaveAction() {
+    private inner class ExportMUScriptAction : AbstractFileSaveAction() {
         init {
             name = "Export as Proof Script"
             setIcon(IconFactory.EXPORT_MU_SCRIPT.get())
@@ -248,11 +245,10 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-
         }
     }
 
-    private inner class ExportMUScriptClipboardAction() : KeyAction() {
+    private inner class ExportMUScriptClipboardAction : KeyAction() {
         init {
             name = "Copy MUScript"
             smallIcon = IconFactory.EXPORT_MU_SCRIPT_CLIPBOARD.get()
@@ -268,7 +264,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
         }
     }
 
-    private inner class SaveAction() : KeyAction() {
+    private inner class SaveAction : KeyAction() {
         init {
             name = "Save"
             setIcon(INTERLOG_SAVE.get())
@@ -276,7 +272,6 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
             priority = 1
             lookupAcceleratorKey()
         }
-
 
         override fun actionPerformed(e: ActionEvent) {
             val fileChooser = getFileChooser()
@@ -286,7 +281,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
                 try {
                     InteractionLogFacade.storeInteractionLog(
                         activeInteractionLog,
-                        fileChooser.selectedFile
+                        fileChooser.selectedFile,
                     )
                     activeInteractionLog.savePath = fileChooser.selectedFile
                 } catch (exception: Exception) {
@@ -294,20 +289,19 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
                         MainWindow.getInstance(),
                         exception.message,
                         "IOException",
-                        JOptionPane.WARNING_MESSAGE
+                        JOptionPane.WARNING_MESSAGE,
                     )
                     exception.printStackTrace()
                 }
-
             }
         }
     }
 
-    private inner class AddUserNoteAction() : KeyAction() {
+    private inner class AddUserNoteAction : KeyAction() {
         init {
             name = "Add Note"
             setIcon(ICON_ADD_USER_ACTION.get(SMALL_ICON_SIZE))
-            //new ImageIcon(getClass().getResource("/de/uka/ilkd/key/gui/icons/book_add.png")));
+            // new ImageIcon(getClass().getResource("/de/uka/ilkd/key/gui/icons/book_add.png")));
             menuPath = MENU_ILOG
             lookupAcceleratorKey()
         }
@@ -326,7 +320,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
         }
     }
 
-    private inner class ToggleFavouriteAction() : KeyAction() {
+    private inner class ToggleFavouriteAction : KeyAction() {
         init {
             name = "Toggle Fav"
             putValue(MNEMONIC_KEY, KeyEvent.VK_F)
@@ -343,7 +337,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
         }
     }
 
-    private inner class JumpIntoTreeAction() : KeyAction() {
+    private inner class JumpIntoTreeAction : KeyAction() {
         init {
             name = "Jump into tree"
             putValue(SMALL_ICON, JUMP_INTO_TREE.get())
@@ -364,7 +358,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
         }
     }
 
-    private inner class TryReapplyAction() : KeyAction() {
+    private inner class TryReapplyAction : KeyAction() {
         init {
             putValue(NAME, "Re-apply action")
             putValue(SMALL_ICON, INTERLOG_TRY_APPLY.get())
@@ -375,7 +369,7 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
         override fun actionPerformed(e: ActionEvent) {
             val inter = listInteraction.selectedValue
             try {
-                //Reapplication should be ignored by the logging.
+                // Reapplication should be ignored by the logging.
                 InteractionLogExt.disableLogging()
                 inter.reapplyStrict(mediator.ui, mediator.selectedGoal)
             } catch (_: UnsupportedOperationException) {
@@ -383,8 +377,10 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
                     null,
                     String.format(
                         "<html>Reapplication of %s is not implemented<br>If you know how to do it, then override the corresponding method in %s.</html>",
-                        inter.javaClass
-                    ), "A very expected error.", JOptionPane.ERROR_MESSAGE
+                        inter.javaClass,
+                    ),
+                    "A very expected error.",
+                    JOptionPane.ERROR_MESSAGE,
                 )
             } catch (e1: Exception) {
                 e1.printStackTrace()
@@ -421,7 +417,6 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-
         }
     }
 
@@ -440,7 +435,6 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-
         }
     }
 
@@ -463,9 +457,9 @@ class InteractionLogView(val interactionLog: InteractionLog, private var mediato
         override fun actionPerformed(e: ActionEvent) {
             val btn = e.source as JComponent
             val menu = createMenu()
-            //val pi = MouseInfo.getPointerInfo()
+            // val pi = MouseInfo.getPointerInfo()
             menu.show(btn, 0, 0)
-            //pi.getLocation().x, pi.getLocation().y);
+            // pi.getLocation().x, pi.getLocation().y);
         }
     }
 
@@ -548,13 +542,14 @@ internal class MultiLineInputPrompt(private var parent: JComponent?, private val
     }
 }
 
-internal class InteractionCellRenderer : JPanel(), ListCellRenderer<Interaction> {
+internal class InteractionCellRenderer :
+    JPanel(),
+    ListCellRenderer<Interaction> {
     private val lblIconLeft = JLabel()
     private val lblIconRight = JLabel()
     private val lblText = JLabel()
     private val iconHeart = InteractionLogView.INTERLOG_TOGGLE_FAV.get()
     private val prettyTime = PrettyTime()
-
 
     init {
         layout = BorderLayout()
@@ -568,16 +563,19 @@ internal class InteractionCellRenderer : JPanel(), ListCellRenderer<Interaction>
         value: Interaction,
         index: Int,
         isSelected: Boolean,
-        cellHasFocus: Boolean
+        cellHasFocus: Boolean,
     ): Component {
-        //df.format(value.created)
+        // df.format(value.created)
 
         lblText.text = value.toString()
         lblIconRight.text = prettyTime.format(value.created.toJavaLocalDateTime())
         lblIconRight.icon = if (value.isFavoured) iconHeart else null
 
-        border = if (value.isFavoured)
-            BorderFactory.createLineBorder(COLOR_FAVOURED.get()) else null
+        border = if (value.isFavoured) {
+            BorderFactory.createLineBorder(COLOR_FAVOURED.get())
+        } else {
+            null
+        }
 
         componentOrientation = list.componentOrientation
 
@@ -585,15 +583,17 @@ internal class InteractionCellRenderer : JPanel(), ListCellRenderer<Interaction>
             background = list.selectionBackground
             foreground = list.selectionForeground
         } else {
-            background = if (value.graphicalStyle.backgroundColor != null)
+            background = if (value.graphicalStyle.backgroundColor != null) {
                 value.graphicalStyle.backgroundColor
-            else
+            } else {
                 list.background
+            }
 
-            foreground = if (value.graphicalStyle.foregroundColor != null)
+            foreground = if (value.graphicalStyle.foregroundColor != null) {
                 value.graphicalStyle.foregroundColor
-            else
+            } else {
                 list.foreground
+            }
         }
 
         lblIconRight.foreground = foreground
@@ -603,7 +603,6 @@ internal class InteractionCellRenderer : JPanel(), ListCellRenderer<Interaction>
         lblIconRight.background = background
         lblIconLeft.background = background
         lblText.background = background
-
 
         isEnabled = list.isEnabled
         font = list.font
@@ -629,7 +628,7 @@ internal class InteractionCellRenderer : JPanel(), ListCellRenderer<Interaction>
                 "interactionlog.favoured",
                 "Color for favoured/marked actions inside the interaction log",
                 Color(0xFFD373),
-                Color(0x005353)
+                Color(0x005353),
             )
     }
 }

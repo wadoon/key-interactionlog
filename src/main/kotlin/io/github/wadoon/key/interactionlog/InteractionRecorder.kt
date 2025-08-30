@@ -1,5 +1,5 @@
-/* This file is part of key-abbrevmgr.
- * key-abbrevmgr is licensed under the GNU General Public License Version 2
+/* This file is part of key-interactionlog.
+ * key-interactionlog is licensed under the GNU General Public License Version 2
  * SPDX-License-Identifier: GPL-2.0-only
  */
 package io.github.wadoon.key.interactionlog
@@ -27,7 +27,9 @@ import java.io.File
 /**
  * @author Alexander Weigl <weigl@kit.edu>
  */
-class InteractionRecorder : InteractionListener, AutoModeListener {
+class InteractionRecorder :
+    InteractionListener,
+    AutoModeListener {
     private val listeners = ArrayList<InteractionRecorderListener>()
     private val instances = arrayListOf<InteractionLog>()
     private val disableSettingsChanges = false
@@ -44,19 +46,17 @@ class InteractionRecorder : InteractionListener, AutoModeListener {
         fireDisposeInteractionLog(log)
     }
 
-    operator fun get(proof: Proof): InteractionLog =
-        instances.find { it.proof.get() == proof }
-            ?: InteractionLog.fromProof(proof).also { il ->
-                register(il)
-                registerOnSettings(proof)
-                registerDisposeListener(proof)
-                createInitialSettingsEntry(proof)
-            }
+    operator fun get(proof: Proof): InteractionLog = instances.find { it.proof.get() == proof }
+        ?: InteractionLog.fromProof(proof).also { il ->
+            register(il)
+            registerOnSettings(proof)
+            registerDisposeListener(proof)
+            createInitialSettingsEntry(proof)
+        }
 
     private fun fireNewInteractionLog(log: InteractionLog) {
         listeners.forEach { it.onNewInteractionLog(this, log) }
     }
-
 
     private fun fireDisposeInteractionLog(log: InteractionLog) {
         listeners.forEach { it.onDisposeInteractionLog(this, log) }
@@ -66,28 +66,30 @@ class InteractionRecorder : InteractionListener, AutoModeListener {
         settingChanged(
             proof,
             proof.settings.strategySettings,
-            InteractionListener.SettingType.STRATEGY, "Initial Config"
+            InteractionListener.SettingType.STRATEGY,
+            "Initial Config",
         )
         settingChanged(
             proof,
             proof.settings.smtSettings,
-            InteractionListener.SettingType.SMT, "Initial Config"
+            InteractionListener.SettingType.SMT,
+            "Initial Config",
         )
         settingChanged(
             proof,
             proof.settings.choiceSettings,
-            InteractionListener.SettingType.CHOICE, "Initial Config"
+            InteractionListener.SettingType.CHOICE,
+            "Initial Config",
         )
     }
 
     private fun registerDisposeListener(proof: Proof) {
         proof.env.addProofEnvironmentListener(object : ProofEnvironmentListener {
             override fun proofRegistered(event: ProofEnvironmentEvent) {
-
             }
 
             override fun proofUnregistered(event: ProofEnvironmentEvent) {
-                //TODO check how to find out whether proof was removed or a different instance
+                // TODO check how to find out whether proof was removed or a different instance
             }
         })
     }
@@ -103,7 +105,8 @@ class InteractionRecorder : InteractionListener, AutoModeListener {
             settingChanged(
                 proof,
                 proof.settings.strategySettings,
-                InteractionListener.SettingType.STRATEGY, null
+                InteractionListener.SettingType.STRATEGY,
+                null,
             )
         }
 
@@ -111,7 +114,8 @@ class InteractionRecorder : InteractionListener, AutoModeListener {
             settingChanged(
                 proof,
                 proof.settings.choiceSettings,
-                InteractionListener.SettingType.CHOICE, null
+                InteractionListener.SettingType.CHOICE,
+                null,
             )
         }
 
@@ -119,17 +123,13 @@ class InteractionRecorder : InteractionListener, AutoModeListener {
             settingChanged(
                 proof,
                 proof.settings.smtSettings,
-                InteractionListener.SettingType.SMT, null
+                InteractionListener.SettingType.SMT,
+                null,
             )
         }
     }
 
-    override fun settingChanged(
-        proof: Proof,
-        settings: Settings,
-        type: InteractionListener.SettingType,
-        message: String?
-    ) {
+    override fun settingChanged(proof: Proof, settings: Settings, type: InteractionListener.SettingType, message: String?) {
         if (disableSettingsChanges) return
         if (isDisableAll) return
 
@@ -140,7 +140,7 @@ class InteractionRecorder : InteractionListener, AutoModeListener {
         val log = get(proof)
 
         try {
-            //Remove the last interaction if it was a change setting with the same type
+            // Remove the last interaction if it was a change setting with the same type
             val last = log.interactions.get(log.interactions.size - 1)
             if (last is SettingChangeInteraction) {
                 val change = last
@@ -173,8 +173,11 @@ class InteractionRecorder : InteractionListener, AutoModeListener {
     }
 
     override fun runBuiltInRule(
-        node: Node, app: IBuiltInRuleApp, rule: BuiltInRule,
-        pos: PosInOccurrence, forced: Boolean
+        node: Node,
+        app: IBuiltInRuleApp,
+        rule: BuiltInRule,
+        pos: PosInOccurrence,
+        forced: Boolean,
     ) {
         if (isDisableAll) return
         val state = get(node.proof())
@@ -213,11 +216,9 @@ class InteractionRecorder : InteractionListener, AutoModeListener {
     }
 
     override fun autoModeStarted(e: ProofEvent) {
-
     }
 
     override fun autoModeStopped(e: ProofEvent) {
-
     }
 
     fun prioritize(interactionLog: InteractionLog) {

@@ -1,5 +1,5 @@
-/* This file is part of key-abbrevmgr.
- * key-abbrevmgr is licensed under the GNU General Public License Version 2
+/* This file is part of key-interactionlog.
+ * key-interactionlog is licensed under the GNU General Public License Version 2
  * SPDX-License-Identifier: GPL-2.0-only
  */
 package io.github.wadoon.key.interactionlog.model
@@ -28,13 +28,12 @@ class RuleHelper(
     val occId: OccurenceIdentifier? = null,
     val tacletArguments: Map<String, String> = HashMap(),
     val pos: Int? = null,
-    val strictSearchStrategy: Boolean = true
+    val strictSearchStrategy: Boolean = true,
 ) {
     private val proof = goal.proof()
     private val services = proof.services
     private val rulename = Name(ruleName)
     private val pio = occId?.rebuildOn(goal)
-
 
     fun makeRuleApp(): RuleApp? {
         val builtInRule: BuiltInRule? = proof.initConfig.profile.standardRules.standardBuiltInRules
@@ -76,11 +75,11 @@ class RuleHelper(
 
         var recheckMatchConditions = false
         /*
-     * (DS, 2019-01-31): Try to instantiate first, otherwise, we cannot
-     * apply taclets with "\newPV", Skolem terms etc.
-     */
+         * (DS, 2019-01-31): Try to instantiate first, otherwise, we cannot
+         * apply taclets with "\newPV", Skolem terms etc.
+         */
         result.tryToInstantiateAsMuchAsPossible(
-            services.getOverlay(goal.localNamespaces)
+            services.getOverlay(goal.localNamespaces),
         )
             ?.let {
                 result = it
@@ -114,15 +113,13 @@ class RuleHelper(
         return null
     }
 
-    fun makeNoFindTacletApp(taclet: Taclet): TacletApp {
-        return NoPosTacletApp.createNoPosTacletApp(taclet)
-    }
+    fun makeNoFindTacletApp(taclet: Taclet): TacletApp = NoPosTacletApp.createNoPosTacletApp(taclet)
 
     fun makeBuiltInRuleApp(rule: BuiltInRule): IBuiltInRuleApp {
         val matchingApps = getBuiltInRuleApps(rule)
         if (matchingApps.isEmpty()) throw ScriptException("No matching applications.")
 
-        //get first or die?
+        // get first or die?
         if (matchingApps.size > 1) {
             throw ScriptException("More than one applicable occurrence")
         }
@@ -190,17 +187,18 @@ class RuleHelper(
             }
         }
 
-        if (strictSearchStrategy)
+        if (strictSearchStrategy) {
             throw ScriptException("Could not find taclet by position")
-
+        }
 
         for (sf in goal.node().sequent().antecedent()) {
             if (!isFormulaSearchedFor(sf)) {
                 continue
             }
             allApps += index.getTacletAppAtAndBelow(
-                filter, PosInOccurrence(sf, PosInTerm.getTopLevel(), true),
-                services
+                filter,
+                PosInOccurrence(sf, PosInTerm.getTopLevel(), true),
+                services,
             )
         }
         for (sf: SequentFormula in goal.node().sequent().succedent()) {
@@ -208,7 +206,9 @@ class RuleHelper(
                 continue
             }
             allApps += index.getTacletAppAtAndBelow(
-                filter, PosInOccurrence(sf, PosInTerm.getTopLevel(), false), services
+                filter,
+                PosInOccurrence(sf, PosInTerm.getTopLevel(), false),
+                services,
             )
         }
         return allApps
@@ -234,13 +234,12 @@ class RuleHelper(
     /**
      * Filter those apps from a list that are according to the parameters.
      */
-    private fun filterList(list: List<TacletApp>): List<TacletApp> =
-        list.filterIsInstance<PosTacletApp>()
-            .filter { pta ->
-                val add = pio != null || pio == pta.posInOccurrence()
-                val args = pta.arguments()
-                add and (args == tacletArguments)
-            }
+    private fun filterList(list: List<TacletApp>): List<TacletApp> = list.filterIsInstance<PosTacletApp>()
+        .filter { pta ->
+            val add = pio != null || pio == pta.posInOccurrence()
+            val args = pta.arguments()
+            add and (args == tacletArguments)
+        }
 }
 
 fun TacletApp.arguments(): Map<String, String> = instantiations().pairIterator().asSequence()
@@ -253,17 +252,14 @@ fun TacletApp.arguments(): Map<String, String> = instantiations().pairIterator()
 private operator fun <S : Any, T> ImmutableMapEntry<S, T>.component1() = key()
 private operator fun <S : Any, T> ImmutableMapEntry<S, T>.component2() = value()
 
-
 /**
  * Removes spaces and line breaks from the string representation of a term.
  *
  * @param services the services object
  * @return The original without spaces and line breaks.
  */
-private fun JTerm.formatTermString(services: Services? = null): String =
-    LogicPrinter.quickPrintTerm(this, services)
-        .replace("[\n \t\r]+", " ")
-
+private fun JTerm.formatTermString(services: Services? = null): String = LogicPrinter.quickPrintTerm(this, services)
+    .replace("[\n \t\r]+", " ")
 
 private class TacletPredicate(private val ruleName: Name) : TacletFilter() {
     override fun filter(taclet: org.key_project.prover.rules.Taclet) = taclet.name() == ruleName

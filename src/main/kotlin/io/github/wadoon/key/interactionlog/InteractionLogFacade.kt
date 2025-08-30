@@ -1,5 +1,5 @@
-/* This file is part of key-abbrevmgr.
- * key-abbrevmgr is licensed under the GNU General Public License Version 2
+/* This file is part of key-interactionlog.
+ * key-interactionlog is licensed under the GNU General Public License Version 2
  * SPDX-License-Identifier: GPL-2.0-only
  */
 package io.github.wadoon.key.interactionlog
@@ -29,22 +29,18 @@ object InteractionLogFacade {
      * @return
      */
     @JvmStatic
-    fun readInteractionLog(inputFile: File): InteractionLog =
-        inputFile.inputStream().use {
-            config.decodeFromStream<InteractionLog>(it).also { log ->
-                log.savePath = inputFile
-            }
+    fun readInteractionLog(inputFile: File): InteractionLog = inputFile.inputStream().use {
+        config.decodeFromStream<InteractionLog>(it).also { log ->
+            log.savePath = inputFile
         }
+    }
 
     /**
      * @param log
      * @param output
      */
     @JvmStatic
-    fun storeInteractionLog(
-        log: InteractionLog,
-        output: File,
-    ) {
+    fun storeInteractionLog(log: InteractionLog, output: File) {
         val out = config.encodeToString(log)
         output.bufferedWriter().use {
             it.write(out)

@@ -1,5 +1,5 @@
-/* This file is part of key-abbrevmgr.
- * key-abbrevmgr is licensed under the GNU General Public License Version 2
+/* This file is part of key-interactionlog.
+ * key-interactionlog is licensed under the GNU General Public License Version 2
  * SPDX-License-Identifier: GPL-2.0-only
  */
 @file:Suppress("unused")
@@ -16,22 +16,19 @@ import kotlinx.serialization.Serializable
 import org.key_project.prover.sequent.PosInOccurrence
 import org.slf4j.LoggerFactory
 
-
 object BuiltInRuleInteractionFactory {
     private val LOGGER = LoggerFactory.getLogger(BuiltInRuleInteractionFactory.javaClass)
-    fun <T : IBuiltInRuleApp> create(node: Node, app: T): BuiltInRuleInteraction? {
-        return when (app) {
-            is OneStepSimplifierRuleApp -> OSSBuiltInRuleInteraction(app, node)
-            is ContractRuleApp -> ContractBuiltInRuleInteraction(app, node)
-            is UseDependencyContractApp -> UseDependencyContractBuiltInRuleInteraction(app, node)
-            is LoopContractInternalBuiltInRuleApp -> LoopContractInternalBuiltInRuleInteraction(app, node)
-            is LoopInvariantBuiltInRuleApp -> LoopInvariantBuiltInRuleInteraction(app, node)
-            is MergeRuleBuiltInRuleApp -> MergeRuleBuiltInRuleInteraction(app, node)
-            is SMTRuleApp -> SMTBuiltInRuleInteraction(app, node)
-            else -> {
-                LOGGER.warn("Unknown rule app {}", app::class.qualifiedName)
-                null
-            }
+    fun <T : IBuiltInRuleApp> create(node: Node, app: T): BuiltInRuleInteraction? = when (app) {
+        is OneStepSimplifierRuleApp -> OSSBuiltInRuleInteraction(app, node)
+        is ContractRuleApp -> ContractBuiltInRuleInteraction(app, node)
+        is UseDependencyContractApp -> UseDependencyContractBuiltInRuleInteraction(app, node)
+        is LoopContractInternalBuiltInRuleApp -> LoopContractInternalBuiltInRuleInteraction(app, node)
+        is LoopInvariantBuiltInRuleApp -> LoopInvariantBuiltInRuleInteraction(app, node)
+        is MergeRuleBuiltInRuleApp -> MergeRuleBuiltInRuleInteraction(app, node)
+        is SMTRuleApp -> SMTBuiltInRuleInteraction(app, node)
+        else -> {
+            LOGGER.warn("Unknown rule app {}", app::class.qualifiedName)
+            null
         }
     }
 }
@@ -71,7 +68,6 @@ class ContractBuiltInRuleInteraction() : BuiltInRuleInteraction() {
         get() = "contract $contractName"
 }
 
-
 /**
  * @author Alexander Weigl
  * @version 1 (09.12.18)
@@ -91,7 +87,6 @@ class LoopContractInternalBuiltInRuleInteraction() : BuiltInRuleInteraction() {
     }
 }
 
-
 /**
  * @author Alexander Weigl
  * @version 1 (09.12.18)
@@ -109,7 +104,6 @@ class LoopInvariantBuiltInRuleInteraction() : BuiltInRuleInteraction() {
     }
 }
 
-
 /**
  * @author Alexander Weigl
  * @version 1 (09.12.18)
@@ -122,7 +116,6 @@ class MergeRuleBuiltInRuleInteraction() : BuiltInRuleInteraction() {
     }
 }
 
-
 /**
  * @author Alexander Weigl
  * @version 1 (09.12.18)
@@ -133,16 +126,16 @@ class OSSBuiltInRuleInteraction() : BuiltInRuleInteraction() {
         get() = String.format(
             "## One step simplification%n" + "* applied on %n  * Term:%s%n  * Toplevel %s%n",
             occurenceIdentifier?.term,
-            occurenceIdentifier?.toplevelFormula
+            occurenceIdentifier?.toplevelFormula,
         )
 
     override val proofScriptRepresentation: String
         get() = String.format(
             "one_step_simplify %n" +
-                    "\t     on = \"%s\"%n" +
-                    "\tformula = \"%s\"%n;%n",
+                "\t     on = \"%s\"%n" +
+                "\tformula = \"%s\"%n;%n",
             occurenceIdentifier?.term,
-            occurenceIdentifier?.toplevelFormula
+            occurenceIdentifier?.toplevelFormula,
         )
 
     constructor(app: OneStepSimplifierRuleApp, node: Node) : this() {
@@ -150,9 +143,7 @@ class OSSBuiltInRuleInteraction() : BuiltInRuleInteraction() {
         occurenceIdentifier = OccurenceIdentifier.create(node.sequent(), app.posInOccurrence())
     }
 
-    override fun toString(): String {
-        return "one step simplification on" + occurenceIdentifier?.term
-    }
+    override fun toString(): String = "one step simplification on" + occurenceIdentifier?.term
 
     fun reapply(uic: WindowUserInterfaceControl, goal: Goal) {
         val oss = OneStepSimplifier()
@@ -161,7 +152,6 @@ class OSSBuiltInRuleInteraction() : BuiltInRuleInteraction() {
         goal.apply(app)
     }
 }
-
 
 /**
  * @author Alexander Weigl
@@ -179,9 +169,7 @@ class SMTBuiltInRuleInteraction() : BuiltInRuleInteraction() {
 
     override val proofScriptRepresentation: String
         get() = "smt"
-
 }
-
 
 /**
  * @author Alexander Weigl

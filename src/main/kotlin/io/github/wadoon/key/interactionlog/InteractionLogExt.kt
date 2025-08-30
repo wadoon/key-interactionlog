@@ -1,5 +1,5 @@
-/* This file is part of key-abbrevmgr.
- * key-abbrevmgr is licensed under the GNU General Public License Version 2
+/* This file is part of key-interactionlog.
+ * key-interactionlog is licensed under the GNU General Public License Version 2
  * SPDX-License-Identifier: GPL-2.0-only
  */
 package io.github.wadoon.key.interactionlog
@@ -27,7 +27,10 @@ import javax.swing.filechooser.FileNameExtensionFilter
  * @version 1 (13.02.19)
  */
 @KeYGuiExtension.Info(name = "Interaction Logging", optional = true, experimental = false, priority = 10000)
-class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExtension.Toolbar,
+class InteractionLogExt :
+    KeYGuiExtension,
+    KeYGuiExtension.MainMenu,
+    KeYGuiExtension.Toolbar,
     InteractionRecorderListener {
     companion object {
         val recorder = InteractionRecorder()
@@ -54,7 +57,7 @@ class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExten
                 value: Any?,
                 index: Int,
                 isSelected: Boolean,
-                cellHasFocus: Boolean
+                cellHasFocus: Boolean,
             ): Component {
                 val v = value ?: "No log loaded."
                 return super.getListCellRendererComponent(list, v, index, isSelected, cellHasFocus)
@@ -82,19 +85,18 @@ class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExten
 
             override fun onNewInteractionLog(recorder: InteractionRecorder, log: InteractionLog) {
                 interactionLogSelection.addItem(log)
-                //create a log message
+                // create a log message
             }
 
             override fun onDisposeInteractionLog(recorder: InteractionRecorder, log: InteractionLog) {
                 interactionLogSelection.removeItem(log)
-                //create a log message
+                // create a log message
             }
         })
 
         toolbar.add(JToggleButton(AutoSaveAction()))
         toolbar.add(SaveAsAction())
     }
-
 
     override fun getToolbar(mainWindow: MainWindow): JToolBar {
         mainWindow.userInterface.proofControl.addInteractionListener(recorder)
@@ -114,7 +116,6 @@ class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExten
 
     override fun getMainMenuActions(mainWindow: MainWindow): List<Action> = listOf()
 
-
     private class PauseLoggingAction : KeyAction() {
         init {
             isSelected = recorder.isDisableAll
@@ -124,8 +125,9 @@ class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExten
 
             update()
             addPropertyChangeListener { evt ->
-                if (evt.propertyName == SELECTED_KEY)
+                if (evt.propertyName == SELECTED_KEY) {
                     update()
+                }
             }
             lookupAcceleratorKey()
         }
@@ -146,7 +148,6 @@ class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExten
         }
     }
 
-
     private class LoadAction : KeyAction() {
         init {
             name = "Load"
@@ -160,24 +161,24 @@ class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExten
         override fun actionPerformed(e: ActionEvent) {
             val fileChooser = JFileChooser()
             fileChooser.fileFilter = FileNameExtensionFilter(
-                "InteractionLog", "json"
+                "InteractionLog",
+                "json",
             )
             val returnValue = fileChooser.showOpenDialog(null)
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 try {
                     val file = fileChooser.selectedFile
                     recorder.readInteractionLog(file)
-                    //addInteractionLog(importedLog);
+                    // addInteractionLog(importedLog);
                 } catch (exception: Exception) {
                     JOptionPane.showMessageDialog(
                         null,
                         exception.cause,
                         "IOException",
-                        JOptionPane.WARNING_MESSAGE
+                        JOptionPane.WARNING_MESSAGE,
                     )
                     exception.printStackTrace()
                 }
-
             }
         }
     }
@@ -230,11 +231,14 @@ class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExten
 
         private fun update() {
             setIcon(
-                (if (isSelected)
-                    InteractionLogView.ICON_AUTO_SAVE_ENABLED
-                else
-                    InteractionLogView.ICON_AUTO_SAVE_DISABLED)
-                    .get(InteractionLogView.SMALL_ICON_SIZE)
+                (
+                    if (isSelected) {
+                        InteractionLogView.ICON_AUTO_SAVE_ENABLED
+                    } else {
+                        InteractionLogView.ICON_AUTO_SAVE_DISABLED
+                    }
+                    )
+                    .get(InteractionLogView.SMALL_ICON_SIZE),
             )
         }
 
@@ -262,7 +266,8 @@ class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExten
             (interactionLogSelection.selectedItem as? InteractionLog)?.let {
                 val fileChooser = JFileChooser()
                 fileChooser.fileFilter = FileNameExtensionFilter(
-                    "InteractionLog", "json"
+                    "InteractionLog",
+                    "json",
                 )
                 val returnValue = fileChooser.showSaveDialog(MainWindow.getInstance())
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
@@ -275,7 +280,7 @@ class InteractionLogExt : KeYGuiExtension, KeYGuiExtension.MainMenu, KeYGuiExten
                             MainWindow.getInstance(),
                             exception.message,
                             "IOException",
-                            JOptionPane.WARNING_MESSAGE
+                            JOptionPane.WARNING_MESSAGE,
                         )
                         exception.printStackTrace()
                     }

@@ -1,15 +1,15 @@
-/* This file is part of key-abbrevmgr.
- * key-abbrevmgr is licensed under the GNU General Public License Version 2
+/* This file is part of key-interactionlog.
+ * key-interactionlog is licensed under the GNU General Public License Version 2
  * SPDX-License-Identifier: GPL-2.0-only
  */
 package io.github.wadoon.key.interactionlog.model
 
 import de.uka.ilkd.key.proof.Goal
 import de.uka.ilkd.key.ui.AbstractMediatorUserInterfaceControl
+import io.github.wadoon.key.interactionlog.InteractionRecorder
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import io.github.wadoon.key.interactionlog.InteractionRecorder
 import java.awt.Color
 import javax.swing.Icon
 
@@ -18,7 +18,10 @@ import javax.swing.Icon
  */
 
 @Serializable
-sealed class Interaction : Markdownable, Scriptable, Reapplicable {
+sealed class Interaction :
+    Markdownable,
+    Scriptable,
+    Reapplicable {
     @Transient
     var graphicalStyle = InteractionGraphicStyle()
         protected set
@@ -28,10 +31,7 @@ sealed class Interaction : Markdownable, Scriptable, Reapplicable {
     var isFavoured = false
 }
 
-data class InteractionGraphicStyle(
-    var icon: Icon? = null, var backgroundColor: Color? = null,
-    var foregroundColor: Color? = null
-)
+data class InteractionGraphicStyle(var icon: Icon? = null, var backgroundColor: Color? = null, var foregroundColor: Color? = null)
 
 /**
  * An interaction recoder listener receives interactions to store them.
@@ -57,15 +57,10 @@ interface Scriptable {
  * @version 1 (08.05.19)
  */
 interface Reapplicable {
-    fun reapplyStrict(uic: AbstractMediatorUserInterfaceControl, goal: Goal) {
-        throw UnsupportedOperationException()
-    }
+    fun reapplyStrict(uic: AbstractMediatorUserInterfaceControl, goal: Goal): Unit = throw UnsupportedOperationException()
 
-    fun reapplyRelaxed(uic: AbstractMediatorUserInterfaceControl, goal: Goal) {
-        throw UnsupportedOperationException()
-    }
+    fun reapplyRelaxed(uic: AbstractMediatorUserInterfaceControl, goal: Goal): Unit = throw UnsupportedOperationException()
 }
-
 
 /**
  * @author Alexander Weigl

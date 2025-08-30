@@ -1,5 +1,5 @@
-/* This file is part of key-abbrevmgr.
- * key-abbrevmgr is licensed under the GNU General Public License Version 2
+/* This file is part of key-interactionlog.
+ * key-interactionlog is licensed under the GNU General Public License Version 2
  * SPDX-License-Identifier: GPL-2.0-only
  */
 @file:Suppress("unused")
@@ -34,7 +34,7 @@ open class BoundsPopupMenuListener @JvmOverloads constructor(
     scrollBarRequired: Boolean = true,
     popupWider: Boolean = false,
     maximumWidth: Int = -1,
-    popupAbove: Boolean = false
+    popupAbove: Boolean = false,
 ) : PopupMenuListener {
     /**
      * Determine if the horizontal scroll bar might be required for the popup
@@ -56,6 +56,7 @@ open class BoundsPopupMenuListener @JvmOverloads constructor(
      *
      * @return the popupWider value
      */
+
     /**
      * Change the width of the popup to be the greater of the width of the
      * combo box or the preferred width of the popup. Normally the popup width
@@ -69,6 +70,7 @@ open class BoundsPopupMenuListener @JvmOverloads constructor(
      *
      * @return the maximumWidth value
      */
+
     /**
      * Set the maximum width for the popup. This value is only used when
      * setPopupWider( true ) has been specified. A value of -1 indicates
@@ -82,6 +84,7 @@ open class BoundsPopupMenuListener @JvmOverloads constructor(
      *
      * @return the popupAbove value
      */
+
     /**
      * Change the location of the popup relative to the combo box.
      *
@@ -142,8 +145,8 @@ open class BoundsPopupMenuListener @JvmOverloads constructor(
     }
 
     /*
-	 *  Adjust the width of the scrollpane used by the popup
-	 */
+     *  Adjust the width of the scrollpane used by the popup
+     */
     protected fun popupWider(popup: BasicComboPopup) {
         val list: JList<*> = popup.getList()
 
@@ -151,9 +154,11 @@ open class BoundsPopupMenuListener @JvmOverloads constructor(
         //  a) determine the popup preferred width
         //  b) limit width to the maximum if specified
         //  c) ensure width is not less than the scroll pane width
-        var popupWidth = (list.preferredSize.width
-                + 5 // make sure horizontal scrollbar doesn't appear
-                + getScrollBarWidth(popup, scrollPane!!))
+        var popupWidth = (
+            list.preferredSize.width +
+                5 + // make sure horizontal scrollbar doesn't appear
+                getScrollBarWidth(popup, scrollPane!!)
+            )
 
         if (maximumWidth != -1) {
             popupWidth = min(popupWidth, maximumWidth)
@@ -169,10 +174,10 @@ open class BoundsPopupMenuListener @JvmOverloads constructor(
     }
 
     /*
-	 *  This method is called every time:
-	 *  - to make sure the viewport is returned to its default position
-	 *  - to remove the horizontal scrollbar when it is not wanted
-	 */
+     *  This method is called every time:
+     *  - to make sure the viewport is returned to its default position
+     *  - to remove the horizontal scrollbar when it is not wanted
+     */
     private fun checkHorizontalScrollBar(popup: BasicComboPopup) {
         //  Reset the viewport to the left
 
@@ -187,7 +192,7 @@ open class BoundsPopupMenuListener @JvmOverloads constructor(
             return
         }
 
-        //	Make sure a horizontal scrollbar exists in the scrollpane
+        // 	Make sure a horizontal scrollbar exists in the scrollpane
         var horizontal = scrollPane!!.getHorizontalScrollBar()
 
         if (horizontal == null) {
@@ -196,7 +201,7 @@ open class BoundsPopupMenuListener @JvmOverloads constructor(
             scrollPane!!.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)
         }
 
-        //	Potentially increase height of scroll pane to display the scrollbar
+        // 	Potentially increase height of scroll pane to display the scrollbar
         if (horizontalScrollBarWillBeVisible(popup, scrollPane!!)) {
             val scrollPaneSize = scrollPane!!.preferredSize
             scrollPaneSize.height += horizontal.preferredSize.height
@@ -207,8 +212,8 @@ open class BoundsPopupMenuListener @JvmOverloads constructor(
     }
 
     /*
-	 *  Get the scroll pane used by the popup so its bounds can be adjusted
-	 */
+     *  Get the scroll pane used by the popup so its bounds can be adjusted
+     */
     protected fun getScrollPane(popup: BasicComboPopup): JScrollPane? {
         val list: JList<*> = popup.getList()
         val c = SwingUtilities.getAncestorOfClass(JScrollPane::class.java, list)
@@ -217,9 +222,9 @@ open class BoundsPopupMenuListener @JvmOverloads constructor(
     }
 
     /*
-	 *  I can't find any property on the scrollBar to determine if it will be
-	 *  displayed or not so use brute force to determine this.
-	 */
+     *  I can't find any property on the scrollBar to determine if it will be
+     *  displayed or not so use brute force to determine this.
+     */
     protected fun getScrollBarWidth(popup: BasicComboPopup, scrollPane: JScrollPane): Int {
         var scrollBarWidth = 0
         val comboBox = popup.getInvoker() as JComboBox<*>
@@ -233,9 +238,9 @@ open class BoundsPopupMenuListener @JvmOverloads constructor(
     }
 
     /*
-	 *  I can't find any property on the scrollBar to determine if it will be
-	 *  displayed or not so use brute force to determine this.
-	 */
+     *  I can't find any property on the scrollBar to determine if it will be
+     *  displayed or not so use brute force to determine this.
+     */
     protected fun horizontalScrollBarWillBeVisible(popup: BasicComboPopup, scrollPane: JScrollPane): Boolean {
         val list: JList<*> = popup.getList()
         val scrollBarWidth = getScrollBarWidth(popup, scrollPane)
