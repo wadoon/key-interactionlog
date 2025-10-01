@@ -5,15 +5,15 @@
 import java.net.URI
 
 plugins {
-    kotlin("jvm") version "2.2.10"
-    kotlin("plugin.serialization") version "2.2.10"
+    kotlin("jvm") version "2.2.20"
+    kotlin("plugin.serialization") version "2.2.20"
     `java-library`
     `maven-publish`
     signing
     id("org.jetbrains.dokka") version "2.0.0"
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
-    id("com.gradleup.shadow") version "9.0.1"
-    id("com.diffplug.spotless") version "7.2.1"
+    id("com.gradleup.shadow") version "9.2.2"
+    id("com.diffplug.spotless") version "8.0.0"
 }
 
 group = "io.github.wadoon.key"
@@ -32,7 +32,7 @@ val keyVersion = System.getenv("KEY_VERSION") ?: "2.12.4-SNAPSHOT"
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.10")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.20")
     // implementation("com.github.ajalt:clikt:2.8.0")
     // implementation("org.jetbrains:annotations:26.0.2")
     implementation("com.atlassian.commonmark:commonmark:0.17.0")
@@ -46,10 +46,10 @@ dependencies {
 
     testImplementation("org.key-project:key.core:$keyVersion")
     testImplementation("org.key-project:key.ui:$keyVersion")
-    testImplementation("com.google.truth:truth:1.4.4")
+    testImplementation("com.google.truth:truth:1.4.5")
     testImplementation("org.slf4j:slf4j-simple:2.0.17")
 
-    testImplementation(platform("org.junit:junit-bom:5.13.4"))
+    testImplementation(platform("org.junit:junit-bom:6.0.0"))
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
