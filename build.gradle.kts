@@ -26,15 +26,14 @@ repositories {
 repositories {
     mavenCentral()
     maven { url = uri("https://central.sonatype.com/repository/maven-snapshots") }
+    maven{ url = uri("https://git.key-project.org/api/v4/projects/35/packages/maven")}
 }
 
-val keyVersion = System.getenv("KEY_VERSION") ?: "2.12.4-SNAPSHOT"
+val keyVersion = System.getenv("KEY_VERSION") ?: "2.13.0-dev"
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.10")
-    // implementation("com.github.ajalt:clikt:2.8.0")
-    // implementation("org.jetbrains:annotations:26.0.2")
     implementation("com.atlassian.commonmark:commonmark:0.17.0")
     implementation("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.17.0")
     implementation("org.ocpsoft.prettytime:prettytime:5.0.9.Final")
