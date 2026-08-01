@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         java: [ 21 ]
-        key: [ "3.0.0-SNAPSHOT" ]
+        key: [ "3.0.0" ]
         os:  [ ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     continue-on-error: false
