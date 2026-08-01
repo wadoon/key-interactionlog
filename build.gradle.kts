@@ -13,7 +13,7 @@ plugins {
     id("org.jetbrains.dokka") version "2.2.0"
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
     id("com.gradleup.shadow") version "9.6.1"
-    id("com.diffplug.spotless") version "8.0.0"
+    id("com.diffplug.spotless") version "8.9.0"
 }
 
 group = "io.github.wadoon.key"
@@ -28,7 +28,7 @@ val keyVersion = System.getenv("KEY_VERSION") ?: "3.0.0"
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.20")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.4.10")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.8.0")
     // implementation("com.github.ajalt:clikt:2.8.0")
     // implementation("org.jetbrains:annotations:26.1.0")
