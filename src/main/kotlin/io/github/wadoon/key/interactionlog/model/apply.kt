@@ -5,7 +5,7 @@
 package io.github.wadoon.key.interactionlog.model
 
 import de.uka.ilkd.key.java.Services
-import de.uka.ilkd.key.logic.*
+import de.uka.ilkd.key.logic.JTerm
 import de.uka.ilkd.key.nparser.KeyIO
 import de.uka.ilkd.key.pp.LogicPrinter
 import de.uka.ilkd.key.proof.Goal
@@ -25,7 +25,7 @@ import org.key_project.util.collection.ImmutableMapEntry
 class RuleHelper(
     val goal: Goal,
     val ruleName: String,
-    val occId: OccurenceIdentifier? = null,
+    val occId: OccurrenceIdentifier? = null,
     val tacletArguments: Map<String, String> = HashMap(),
     val pos: Int? = null,
     val strictSearchStrategy: Boolean = true,
@@ -98,7 +98,7 @@ class RuleHelper(
         val res = result.tryToInstantiate(services.getOverlay(goal.localNamespaces))
             ?: throw ScriptException("Cannot instantiate this rule")
         if (recheckMatchConditions) {
-            val appMC = res.taclet().matcher.checkConditions(res.matchConditions(), services)
+            val appMC = res.taclet().matcher?.checkConditions(res.matchConditions(), services)
             return appMC?.let { res.setMatchConditions(it, services) }
         }
         return res

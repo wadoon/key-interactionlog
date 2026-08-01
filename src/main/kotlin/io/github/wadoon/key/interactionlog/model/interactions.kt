@@ -40,10 +40,9 @@ import java.lang.ref.WeakReference
 import java.util.*
 import javax.swing.JOptionPane
 import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class)
-internal fun now(): LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+internal fun now(): LocalDateTime =
+    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
 /**
  * @author Alexander Weigl
@@ -60,14 +59,12 @@ data class InteractionLog(val name: String = RandomName.getRandomName(), var cre
     @Transient
     var savePath: File? = null
 
-    private val _interactions: MutableList<Interaction> = ArrayList()
-
     val interactions: List<Interaction>
-        get() = _interactions
+        field: MutableList<Interaction> = ArrayList()
 
-    fun add(interaction: Interaction) = _interactions.add(interaction)
-    fun remove(interaction: Interaction) = _interactions.remove(interaction)
-    fun remove(index: Int) = _interactions.removeAt(index)
+    fun add(interaction: Interaction) = interactions.add(interaction)
+    fun remove(interaction: Interaction) = interactions.remove(interaction)
+    fun remove(index: Int) = interactions.removeAt(index)
 
     companion object {
         fun fromProof(proof: Proof): InteractionLog {
@@ -130,9 +127,10 @@ class MacroInteraction() : NodeInteraction() {
         this.info = info.toString()
         macroName = macro.scriptCommandName
         pos = posInOcc
-        val openGoals = info.proof.openGoals()
-        this.openGoalSerialNumbers = openGoals.toList().map { g -> g.node().serialNr() }
-        this.openGoalNodeIds = openGoals.toList().map { g -> NodeIdentifier.create(g.node()) }
+        info.proof?.openGoals()?.let { openGoals ->
+            this.openGoalSerialNumbers = openGoals.toList().map { g -> g.node().serialNr() }
+            this.openGoalNodeIds = openGoals.toList().map { g -> NodeIdentifier.create(g.node()) }
+        }
     }
 
     override fun toString(): String = macroName ?: "n/a"
@@ -244,7 +242,7 @@ class PruneInteraction() : NodeInteraction() {
  * @version 1 (09.12.18)
  */
 @Serializable
-class OccurenceIdentifier {
+class OccurrenceIdentifier {
     var path: Array<Int>? = null
     var term: String? = null
     var termHash: Int = 0
@@ -264,7 +262,7 @@ class OccurenceIdentifier {
 
     private fun rebuildOn(seq: Sequent): PosInOccurrence {
         val path = path
-        val pit = if (path != null && path.isNotEmpty()) {
+        val pit = if (!path.isNullOrEmpty()) {
             PosInTerm(path.toIntArray())
         } else {
             PosInTerm.getTopLevel()
@@ -274,8 +272,8 @@ class OccurenceIdentifier {
     }
 
     companion object {
-        fun create(seq: Sequent, p: PosInOccurrence?): OccurenceIdentifier {
-            if (p == null) return OccurenceIdentifier()
+        fun create(seq: Sequent, p: PosInOccurrence?): OccurrenceIdentifier {
+            if (p == null) return OccurrenceIdentifier()
 
             val indices = ArrayList<Int>()
             val iter = p.iterator()
@@ -283,7 +281,7 @@ class OccurenceIdentifier {
                 indices.add(iter.child)
             }
 
-            val occ = OccurenceIdentifier()
+            val occ = OccurrenceIdentifier()
             occ.formulaNumber = seq.formulaNumberInSequent(p.isInAntec, p.sequentFormula())
             occ.path = indices.toTypedArray()
             occ.term = iter.subTerm.toString()
@@ -363,7 +361,7 @@ class SettingChangeInteraction() : Interaction() {
     }
 }
 
-private fun Properties.toStringMap(): Map<String, String> = asSequence().map { (k, v) -> k.toString() to v.toString() }.toMap()
+private fun Properties.toStringMap(): Map<String, String> = asSequence().associate { (k, v) -> k.toString() to v.toString() }
 
 @Serializable
 class AutoModeInteraction(
@@ -436,16 +434,16 @@ class AutoModeInteraction(
 @Serializable
 class RuleInteraction() : NodeInteraction() {
     var ruleName: String? = null
-    var posInOccurence: OccurenceIdentifier? = null
+    var posInOccurrence: OccurrenceIdentifier? = null
     var arguments = HashMap<String, String>()
-    var ruleOccurence: Int? = null
+    var ruleOccurrence: Int? = null
 
     constructor(node: Node, app: RuleApp) : this() {
         nodeIdentifier = NodeIdentifier.create(node)
         serialNr = node.serialNr()
 
         ruleName = app.rule().displayName()
-        this.posInOccurence = OccurenceIdentifier.create(node.sequent(), app.posInOccurrence())
+        this.posInOccurrence = OccurrenceIdentifier.create(node.sequent(), app.posInOccurrence())
         if (app is TacletApp) {
             arguments = HashMap(app.arguments())
             /*SequentFormula seqForm = pos.getPosInOccurrence().sequentFormula();
@@ -460,7 +458,7 @@ class RuleInteraction() : NodeInteraction() {
 
     override val markdown: String
         get() {
-            val formula = posInOccurence
+            val formula = posInOccurrence
             val parameters =
                 arguments.map { (key, value) -> "              * $key : `$value`" }
                     .joinToString("\n")
@@ -471,7 +469,7 @@ class RuleInteraction() : NodeInteraction() {
             **Date**: $created
 
             * Applied on `$formula`
-            * The used parameter for the taclet instantation are
+            * The used parameter for the taclet instantiation are
             """.trimIndent() +
                 if (arguments.isEmpty()) "empty" else parameters
         }
@@ -489,8 +487,8 @@ class RuleInteraction() : NodeInteraction() {
 
             return """
             rule $ruleName
-                 on = "${posInOccurence?.term}"
-                 formula = "${posInOccurence?.toplevelFormula}"
+                 on = "${posInOccurrence?.term}"
+                 formula = "${posInOccurrence?.toplevelFormula}"
                  $args;
             """.trimIndent()
         }
@@ -503,7 +501,7 @@ class RuleInteraction() : NodeInteraction() {
     }
 
     override fun reapplyStrict(uic: AbstractMediatorUserInterfaceControl, goal: Goal) {
-        val rh = RuleHelper(goal, ruleName!!, posInOccurence, arguments, ruleOccurence, true)
+        val rh = RuleHelper(goal, ruleName!!, posInOccurrence, arguments, ruleOccurrence, true)
         try {
             var theApp = rh.makeRuleApp()
             if (theApp is TacletApp) {

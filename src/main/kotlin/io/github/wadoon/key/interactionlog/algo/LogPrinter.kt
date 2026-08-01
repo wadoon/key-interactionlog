@@ -50,14 +50,19 @@ class LogPrinter {
         }
     }
 
-    private fun body(tree: HashMap<Interaction, List<Interaction>>, interaction: Interaction) {
+    private fun body(
+        tree: HashMap<Interaction, List<Interaction>>, interaction: Interaction,
+    ) {
         newline()
         // TODO out.write(interaction.getProofScriptRepresentation(services));
 
         val children = tree[interaction]
         if (children != null) {
             when (children.size) {
-                1 -> body(tree, children[0])
+                1 -> {
+                    body(tree, children[0])
+                }
+
                 else -> {
                     newline()
                     out!!.write("cases {")
@@ -107,14 +112,14 @@ class LogPrinter {
                 val p = n.parent()
                 if (p != null && p.childrenCount() != 1) {
                     val branchLabel: String? = n.nodeInfo.branchLabel
-                    sb.append(
-                        if (branchLabel != null && !branchLabel.isEmpty()) {
-                            branchLabel
+                    sb
+                        .append(
+                            if (branchLabel != null && !branchLabel.isEmpty()) {
+                                branchLabel
                         } else {
-                            "#" + p.getChildNr(n)
-                        },
-                    )
-                        .append(SEPARATOR)
+                                "#" + p.getChildNr(n)
+                            },
+                        ).append(SEPARATOR)
                 }
                 n = p
             }

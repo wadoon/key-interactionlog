@@ -5,14 +5,14 @@
 import java.net.URI
 
 plugins {
-    kotlin("jvm") version "2.2.20"
-    kotlin("plugin.serialization") version "2.2.20"
+    kotlin("jvm") version "2.4.10"
+    kotlin("plugin.serialization") version "2.4.10"
     `java-library`
     `maven-publish`
     signing
-    id("org.jetbrains.dokka") version "2.0.0"
+    id("org.jetbrains.dokka") version "2.2.0"
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
-    id("com.gradleup.shadow") version "9.2.2"
+    id("com.gradleup.shadow") version "9.6.1"
     id("com.diffplug.spotless") version "8.0.0"
 }
 
@@ -21,35 +21,32 @@ version = "1.1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-}
-
-repositories {
-    mavenCentral()
     maven { url = uri("https://central.sonatype.com/repository/maven-snapshots") }
 }
 
-val keyVersion = System.getenv("KEY_VERSION") ?: "2.12.4-SNAPSHOT"
+val keyVersion = System.getenv("KEY_VERSION") ?: "3.0.0"
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.20")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.8.0")
     // implementation("com.github.ajalt:clikt:2.8.0")
-    // implementation("org.jetbrains:annotations:26.0.2")
+    // implementation("org.jetbrains:annotations:26.1.0")
     implementation("com.atlassian.commonmark:commonmark:0.17.0")
     implementation("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.17.0")
     implementation("org.ocpsoft.prettytime:prettytime:5.0.9.Final")
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1-0.6.x-compat")
+    // implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.8.0")
 
     compileOnly("org.key-project:key.core:$keyVersion")
     compileOnly("org.key-project:key.ui:$keyVersion")
-    compileOnly("org.slf4j:slf4j-api:2.0.17")
+    compileOnly("org.slf4j:slf4j-api:2.0.18")
 
     testImplementation("org.key-project:key.core:$keyVersion")
     testImplementation("org.key-project:key.ui:$keyVersion")
     testImplementation("com.google.truth:truth:1.4.5")
-    testImplementation("org.slf4j:slf4j-simple:2.0.17")
+    testImplementation("org.slf4j:slf4j-simple:2.0.18")
 
-    testImplementation(platform("org.junit:junit-bom:6.0.0"))
+    testImplementation(platform("org.junit:junit-bom:6.1.2"))
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
@@ -122,8 +119,8 @@ nexusPublishing {
             snapshotRepositoryUrl = uri("https://central.sonatype.com/repository/maven-snapshots/")
 
             stagingProfileId.set("io.github.wadoon")
-            val user: String = project.properties.getOrDefault("ossrhUsername", "").toString()
-            val pwd: String = project.properties.getOrDefault("ossrhPassword", "").toString()
+            val user: String = project.findProperty("ossrhUsername")?.toString() ?: ""
+            val pwd: String = project.findProperty("ossrhPassword")?.toString() ?: ""
 
             username.set(user)
             password.set(pwd)
@@ -149,7 +146,6 @@ spotless {
             """.trimMargin(),
         ).delimiter("^(package |@file|import |plugins )")
         val editorConfigPath = File(rootDir, ".editorconfig")
-        println("$editorConfigPath  ${editorConfigPath.exists()}")
         ktlint("1.7.1")
             .setEditorConfigPath(editorConfigPath)
         trimTrailingWhitespace()
@@ -236,8 +232,8 @@ tasks.register("makeDownloadScript") {
                 $$downloads
 
                 |echo "Extend your classpath by following Jars, either using the whole folder, or by single Jars."
-                |echo "java -cp key-2.14.4-dev.jar:$TARGET/*"
-                |echo "or: java -cp key-2.14.4-dev.jar:$${downloadedJars.joinToString(":")}"
+                |echo "java -cp key-3.0.0-dev.jar:$TARGET/*"
+                |echo "or: java -cp key-3.0.0.jar:$${downloadedJars.joinToString(":")}"
                 """.trimMargin(),
             )
         }

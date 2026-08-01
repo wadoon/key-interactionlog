@@ -14,18 +14,22 @@ import java.util.*
  * Information about how to read an interaction log in markdown.
  * This is a string, that gets injected into the generated markdown.
  */
-private val HOWTO: String = """
+private val HOWTO: String =
+    """
 
 ## How to read this document
 
 
 """.trimIndent()
 
-class MarkdownExport(val logbook: InteractionLog, val writer: PrintWriter) {
-
+class MarkdownExport(
+    val logbook: InteractionLog,
+    val writer: PrintWriter,
+) {
     fun run() {
         writer.format(
-            """"
+            """
+            "
 # ${logbook.name}
 
 Interaction of the ${logbook.created}
@@ -75,11 +79,14 @@ It was created on the ${Date()} by user ${System.getenv("user.name")}.
     }
 }
 
-fun Interaction?.toMarkdown() = try {
-    val m = this as Markdownable
-    m.markdown
-} catch (_: ClassCastException) {
-    "No markdown available for $this"
-}
+fun Interaction?.toMarkdown() =
+    try {
+        val m = this as Markdownable
+        m.markdown
+    } catch (_: ClassCastException) {
+        "No markdown available for $this"
+    }
 
-fun Interaction?.toHtml() = io.github.wadoon.key.interactionlog.Markdown.html(toMarkdown())
+fun Interaction?.toHtml() =
+    io.github.wadoon.key.interactionlog.Markdown
+        .html(toMarkdown())
