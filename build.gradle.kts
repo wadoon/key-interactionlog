@@ -1,12 +1,15 @@
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+
 plugins {
-    kotlin("jvm") version "2.2.10"
-    kotlin("plugin.serialization") version "2.2.10"
+    kotlin("jvm") version "2.4.10"
+    kotlin("plugin.serialization") version "2.4.10"
     `java-library`
     `maven-publish`
     signing
-    id("org.jetbrains.dokka") version "2.0.0"
+    id("org.jetbrains.dokka") version "2.2.0"
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
-    id("com.gradleup.shadow") version "9.0.1"
+    id("com.gradleup.shadow") version "9.6.1"
+    id("io.github.ben-manes.versions") version "0.58.0"
 }
 
 group = "io.github.wadoon.key"
@@ -21,29 +24,30 @@ repositories {
     maven { url = uri("https://central.sonatype.com/repository/maven-snapshots") }
 }
 
-val keyVersion = System.getenv("KEY_VERSION") ?: "2.12.4-SNAPSHOT"
+val keyVersion = System.getenv("KEY_VERSION") ?: "3.0.0"
 
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.8.0")
     implementation("com.github.ajalt:clikt:2.8.0")
-    implementation("org.jetbrains:annotations:26.0.2")
+    implementation("org.jetbrains:annotations:26.1.0")
     implementation("com.atlassian.commonmark:commonmark:0.17.0")
     implementation("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.17.0")
     implementation("org.ocpsoft.prettytime:prettytime:5.0.9.Final")
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1-0.6.x-compat")
+    // implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.8.0")
 
-    compileOnly("org.key-project:key.core:${keyVersion}")
-    compileOnly("org.key-project:key.ui:${keyVersion}")
-    compileOnly("org.slf4j:slf4j-api:2.0.17")
+    compileOnly("org.key-project:key.core:$keyVersion")
+    compileOnly("org.key-project:key.ui:$keyVersion")
+    compileOnly("org.slf4j:slf4j-api:2.0.18")
 
-    testImplementation("org.key-project:key.core:${keyVersion}")
-    testImplementation("org.key-project:key.ui:${keyVersion}")
-    testImplementation("com.google.truth:truth:1.4.4")
-    testImplementation("org.slf4j:slf4j-simple:2.0.17")
+    testImplementation("org.key-project:key.core:$keyVersion")
+    testImplementation("org.key-project:key.ui:$keyVersion")
+    testImplementation("com.google.truth:truth:1.4.5")
+    testImplementation("org.slf4j:slf4j-simple:2.0.18")
 
-    testImplementation(platform("org.junit:junit-bom:5.13.4"))
+    testImplementation(platform("org.junit:junit-bom:6.1.2"))
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
@@ -108,7 +112,6 @@ publishing {
     }
 }
 
-
 nexusPublishing {
     repositories {
         create("central") {
@@ -116,11 +119,26 @@ nexusPublishing {
             snapshotRepositoryUrl = uri("https://central.sonatype.com/repository/maven-snapshots/")
 
             stagingProfileId.set("io.github.wadoon")
-            val user: String = project.properties.getOrDefault("ossrhUsername", "").toString()
-            val pwd: String = project.properties.getOrDefault("ossrhPassword", "").toString()
+            val user: String = project.findProperty("ossrhUsername")?.toString() ?: ""
+            val pwd: String = project.findProperty("ossrhPassword")?.toString() ?: ""
 
             username.set(user)
             password.set(pwd)
         }
     }
 }
+
+    tasks.named<DependencyUpdatesTask>("dependencyUpdates") {
+        fun String.isNonStable(): Boolean {
+            val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { uppercase().contains(it) }
+            val regex = "^[0-9,.v-]+(-r)?$".toRegex()
+            val isStable = stableKeyword || regex.matches(this)
+            return isStable.not()
+        }
+
+        rejectVersionIf {
+            candidate.version.isNonStable()
+        }
+
+        revision = "release"
+    }

@@ -12,8 +12,10 @@ import java.util.*
  * @author Alexander Weigl
  * @version 1 (09.12.18)
  */
-open class MUProofScriptExport(val logbook: InteractionLog,
-                               val writer: PrintWriter) {
+open class MUProofScriptExport(
+    val logbook: InteractionLog,
+    val writer: PrintWriter,
+) {
     fun run() {
         writeScriptHeader()
         writeScriptBody()

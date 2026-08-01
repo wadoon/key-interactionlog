@@ -10,7 +10,7 @@ import java.util.function.Function
 /**
  * @author weigl
  */
-class LogPrinter() {
+class LogPrinter {
     private var w: StringWriter? = null
     private var out: PrintWriter? = null
     var matchExpr = Function<Node, String> { getBranchingLabel(it) }
@@ -41,23 +41,25 @@ class LogPrinter() {
 
     private fun body() {
         if (state!!.interactions.size != 0) {
-            //HashMap<Interaction, List<Interaction>> tree = state.getInteractionTree();
-            //body(tree, state.getInteractions().get(0));
+            // HashMap<Interaction, List<Interaction>> tree = state.getInteractionTree();
+            // body(tree, state.getInteractions().get(0));
         }
     }
 
     private fun body(
         tree: HashMap<Interaction, List<Interaction>>,
-        interaction: Interaction
+        interaction: Interaction,
     ) {
-
         newline()
-        //TODO out.write(interaction.getProofScriptRepresentation(services));
+        // TODO out.write(interaction.getProofScriptRepresentation(services));
 
         val children = tree[interaction]
         if (children != null) {
             when (children.size) {
-                1 -> body(tree, children[0])
+                1 -> {
+                    body(tree, children[0])
+                }
+
                 else -> {
                     newline()
                     out!!.write("cases {")
@@ -66,7 +68,7 @@ class LogPrinter() {
                     for (c in children) {
                         newline()
                         out!!.write("case \"")
-                        //TODO out.write(matchExpr.apply(c.getNode()));
+                        // TODO out.write(matchExpr.apply(c.getNode()));
                         out!!.write("\" {")
                         indent++
                         body(tree, c)
@@ -107,13 +109,14 @@ class LogPrinter() {
                 val p = n.parent()
                 if (p != null && p.childrenCount() != 1) {
                     val branchLabel: String? = n.nodeInfo.branchLabel
-                    sb.append(
-                        if (branchLabel != null && !branchLabel.isEmpty())
-                            branchLabel
-                        else
-                            "#" + p.getChildNr(n)
-                    )
-                        .append(SEPARATOR)
+                    sb
+                        .append(
+                            if (branchLabel != null && !branchLabel.isEmpty()) {
+                                branchLabel
+                            } else {
+                                "#" + p.getChildNr(n)
+                            },
+                        ).append(SEPARATOR)
                 }
                 n = p
             }

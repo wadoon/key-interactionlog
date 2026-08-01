@@ -1,7 +1,7 @@
 package io.github.wadoon.key.interactionlog.model
 
 import de.uka.ilkd.key.java.Services
-import de.uka.ilkd.key.logic.*
+import de.uka.ilkd.key.logic.JTerm
 import de.uka.ilkd.key.nparser.KeyIO
 import de.uka.ilkd.key.pp.LogicPrinter
 import de.uka.ilkd.key.proof.Goal
@@ -21,7 +21,7 @@ import org.key_project.util.collection.ImmutableMapEntry
 class RuleHelper(
     val goal: Goal,
     val ruleName: String,
-    val occId: OccurenceIdentifier? = null,
+    val occId: OccurrenceIdentifier? = null,
     val tacletArguments: Map<String, String> = HashMap(),
     val pos: Int? = null,
     val strictSearchStrategy: Boolean = true
@@ -30,7 +30,6 @@ class RuleHelper(
     private val services = proof.services
     private val rulename = Name(ruleName)
     private val pio = occId?.rebuildOn(goal)
-
 
     fun makeRuleApp(): RuleApp? {
         val builtInRule: BuiltInRule? = proof.initConfig.profile.standardRules.standardBuiltInRules
@@ -95,7 +94,7 @@ class RuleHelper(
         val res = result.tryToInstantiate(services.getOverlay(goal.localNamespaces))
             ?: throw ScriptException("Cannot instantiate this rule")
         if (recheckMatchConditions) {
-            val appMC = res.taclet().matcher.checkConditions(res.matchConditions(), services)
+            val appMC = res.taclet().matcher?.checkConditions(res.matchConditions(), services)
             return appMC?.let { res.setMatchConditions(it, services) }
         }
         return res
@@ -110,15 +109,13 @@ class RuleHelper(
         return null
     }
 
-    fun makeNoFindTacletApp(taclet: Taclet): TacletApp {
-        return NoPosTacletApp.createNoPosTacletApp(taclet)
-    }
+    fun makeNoFindTacletApp(taclet: Taclet): TacletApp = NoPosTacletApp.createNoPosTacletApp(taclet)
 
     fun makeBuiltInRuleApp(rule: BuiltInRule): IBuiltInRuleApp {
         val matchingApps = getBuiltInRuleApps(rule)
         if (matchingApps.isEmpty()) throw ScriptException("No matching applications.")
 
-        //get first or die?
+        // get first or die?
         if (matchingApps.size > 1) {
             throw ScriptException("More than one applicable occurrence")
         }
@@ -186,9 +183,9 @@ class RuleHelper(
             }
         }
 
-        if (strictSearchStrategy)
+        if (strictSearchStrategy) {
             throw ScriptException("Could not find taclet by position")
-
+        }
 
         for (sf in goal.node().sequent().antecedent()) {
             if (!isFormulaSearchedFor(sf)) {
@@ -249,7 +246,6 @@ fun TacletApp.arguments(): Map<String, String> = instantiations().pairIterator()
 private operator fun <S : Any, T> ImmutableMapEntry<S, T>.component1() = key()
 private operator fun <S : Any, T> ImmutableMapEntry<S, T>.component2() = value()
 
-
 /**
  * Removes spaces and line breaks from the string representation of a term.
  *
@@ -259,7 +255,6 @@ private operator fun <S : Any, T> ImmutableMapEntry<S, T>.component2() = value()
 private fun JTerm.formatTermString(services: Services? = null): String =
     LogicPrinter.quickPrintTerm(this, services)
         .replace("[\n \t\r]+", " ")
-
 
 private class TacletPredicate(private val ruleName: Name) : TacletFilter() {
     override fun filter(taclet: org.key_project.prover.rules.Taclet) = taclet.name() == ruleName

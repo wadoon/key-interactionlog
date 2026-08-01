@@ -36,10 +36,9 @@ import java.lang.ref.WeakReference
 import java.util.*
 import javax.swing.JOptionPane
 import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class)
-internal fun now(): LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+internal fun now(): LocalDateTime =
+    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
 /**
  * @author Alexander Weigl
@@ -56,15 +55,12 @@ data class InteractionLog(val name: String = RandomName.getRandomName(), var cre
     @Transient
     var savePath: File? = null
 
-    private val _interactions: MutableList<Interaction> = ArrayList()
-
     val interactions: List<Interaction>
-        get() = _interactions
+        field: MutableList<Interaction> = ArrayList()
 
-
-    fun add(interaction: Interaction) = _interactions.add(interaction)
-    fun remove(interaction: Interaction) = _interactions.remove(interaction)
-    fun remove(index: Int) = _interactions.removeAt(index)
+    fun add(interaction: Interaction) = interactions.add(interaction)
+    fun remove(interaction: Interaction) = interactions.remove(interaction)
+    fun remove(index: Int) = interactions.removeAt(index)
 
     companion object {
         fun fromProof(proof: Proof): InteractionLog {
@@ -93,7 +89,6 @@ sealed class NodeInteraction() : Interaction() {
 
     fun getNode(proof: Proof): Node? = nodeIdentifier?.findNode(proof)
 }
-
 
 /**
  * @author Alexander Weigl
@@ -128,9 +123,10 @@ class MacroInteraction() : NodeInteraction() {
         this.info = info.toString()
         macroName = macro.scriptCommandName
         pos = posInOcc
-        val openGoals = info.proof.openGoals()
-        this.openGoalSerialNumbers = openGoals.toList().map { g -> g.node().serialNr() }
-        this.openGoalNodeIds = openGoals.toList().map { g -> NodeIdentifier.create(g.node()) }
+        info.proof?.openGoals()?.let { openGoals ->
+            this.openGoalSerialNumbers = openGoals.toList().map { g -> g.node().serialNr() }
+            this.openGoalNodeIds = openGoals.toList().map { g -> NodeIdentifier.create(g.node()) }
+        }
     }
 
     override fun toString(): String = macroName ?: "n/a"
@@ -153,11 +149,9 @@ class MacroInteraction() : NodeInteraction() {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-
         }
     }
 }
-
 
 /**
  * @author Alexander Weigl
@@ -181,7 +175,6 @@ data class NodeIdentifier(
             .map { it.toString() }
             .reduce("") { a, b -> a + b } +
                 " => " + serialNr
-
 
     fun findNode(proof: Proof) = findNode(proof.root())
 
@@ -237,7 +230,6 @@ class PruneInteraction() : NodeInteraction() {
         serialNr = node.serialNr()
     }
 
-
     @Throws(Exception::class)
     override fun reapplyStrict(uic: AbstractMediatorUserInterfaceControl, goal: Goal) {
         nodeIdentifier?.findNode(goal.proof())?.also {
@@ -246,13 +238,12 @@ class PruneInteraction() : NodeInteraction() {
     }
 }
 
-
 /**
  * @author Alexander Weigl
  * @version 1 (09.12.18)
  */
 @Serializable
-class OccurenceIdentifier {
+class OccurrenceIdentifier {
     var path: Array<Int>? = null
     var term: String? = null
     var termHash: Int = 0
@@ -260,31 +251,30 @@ class OccurenceIdentifier {
     var formulaNumber: Int = 0
     var isAntec: Boolean = false
 
-    override fun toString(): String {
-        return path?.let {
+    override fun toString(): String = path?.let {
             if (it.isNotEmpty()) {
                 "$term under $toplevelFormula(Path: ${path.contentToString()})"
             } else {
                 "$term @toplevel"
             }
         } ?: " @toplevel"
-    }
 
     fun rebuildOn(goal: Goal) = rebuildOn(goal.node().sequent())
 
     private fun rebuildOn(seq: Sequent): PosInOccurrence {
         val path = path
-        val pit = if (path != null && path.isNotEmpty())
+        val pit = if (!path.isNullOrEmpty()) {
             PosInTerm(path.toIntArray())
-        else
+        } else {
             PosInTerm.getTopLevel()
+        }
 
         return PosInOccurrence.findInSequent(seq, formulaNumber, pit)
     }
 
     companion object {
-        fun create(seq: Sequent, p: PosInOccurrence?): OccurenceIdentifier {
-            if (p == null) return OccurenceIdentifier()
+        fun create(seq: Sequent, p: PosInOccurrence?): OccurrenceIdentifier {
+            if (p == null) return OccurrenceIdentifier()
 
             val indices = ArrayList<Int>()
             val iter = p.iterator()
@@ -292,7 +282,7 @@ class OccurenceIdentifier {
                 indices.add(iter.child)
             }
 
-            val occ = OccurenceIdentifier()
+            val occ = OccurrenceIdentifier()
             occ.formulaNumber = seq.formulaNumberInSequent(p.isInAntec, p.sequentFormula())
             occ.path = indices.toTypedArray()
             occ.term = iter.subTerm.toString()
@@ -303,7 +293,6 @@ class OccurenceIdentifier {
         }
     }
 }
-
 
 @Serializable
 class UserNoteInteraction(var note: String = "") : Interaction() {
@@ -324,7 +313,6 @@ class UserNoteInteraction(var note: String = "") : Interaction() {
     override fun toString(): String = note
 }
 
-
 @Serializable
 class SettingChangeInteraction() : Interaction() {
     var savedSettings: String? = null
@@ -340,7 +328,7 @@ class SettingChangeInteraction() : Interaction() {
             
             """.trimIndent() + """
                 |```
-                |${savedSettings}
+                |$savedSettings
                 |```
                 |
             """.trimMargin()
@@ -374,10 +362,8 @@ class SettingChangeInteraction() : Interaction() {
     }
 }
 
-
 private fun Properties.toStringMap(): Map<String, String> =
-    asSequence().map { (k, v) -> k.toString() to v.toString() }.toMap()
-
+    asSequence().associate { (k, v) -> k.toString() to v.toString() }
 
 @Serializable
 class AutoModeInteraction(
@@ -404,8 +390,11 @@ class AutoModeInteraction(
             $initialNodes 
             
             ${
-                if (openGoalNodeIds.isEmpty()) "* **Closed all goals**"
-                else "* Finished on nodes:"
+                if (openGoalNodeIds.isEmpty()) {
+                    "* **Closed all goals**"
+                } else {
+                    "* Finished on nodes:"
+                }
             }}
             $finalNodes
 
@@ -441,23 +430,22 @@ class AutoModeInteraction(
     }
 }
 
-
 /**
  * @author weigl
  */
 @Serializable
 class RuleInteraction() : NodeInteraction() {
     var ruleName: String? = null
-    var posInOccurence: OccurenceIdentifier? = null
+    var posInOccurrence: OccurrenceIdentifier? = null
     var arguments = HashMap<String, String>()
-    var ruleOccurence: Int? = null
+    var ruleOccurrence: Int? = null
 
     constructor(node: Node, app: RuleApp) : this() {
         nodeIdentifier = NodeIdentifier.create(node)
         serialNr = node.serialNr()
 
         ruleName = app.rule().displayName()
-        this.posInOccurence = OccurenceIdentifier.create(node.sequent(), app.posInOccurrence())
+        this.posInOccurrence = OccurrenceIdentifier.create(node.sequent(), app.posInOccurrence())
         if (app is TacletApp) {
             arguments = HashMap(app.arguments())
             /*SequentFormula seqForm = pos.getPosInOccurrence().sequentFormula();
@@ -467,13 +455,12 @@ class RuleInteraction() : NodeInteraction() {
                 sb.append("\n    on=`").append(onTerm).append("`");
                 sb.append("\n    occ=?;");
                 */
-
         }
     }
 
     override val markdown: String
         get() {
-            val formula = posInOccurence
+            val formula = posInOccurrence
             val parameters =
                 arguments.map { (key, value) -> "              * $key : `$value`" }
                     .joinToString("\n")
@@ -484,7 +471,7 @@ class RuleInteraction() : NodeInteraction() {
             **Date**: $created
             
             * Applied on `$formula`
-            * The used parameter for the taclet instantation are             
+            * The used parameter for the taclet instantiation are             
             """.trimIndent() +
                     if (arguments.isEmpty()) "empty" else parameters
         }
@@ -492,16 +479,18 @@ class RuleInteraction() : NodeInteraction() {
     override val proofScriptRepresentation: String
         get() {
             val args =
-                if (arguments.isEmpty()) ""
-                else
+                if (arguments.isEmpty()) {
+                    ""
+                } else {
                     arguments.map { (k, v) ->
                         "                 inst_${firstWord(k)} = \"${v.trim { it <= ' ' }}\"\n"
                     }.joinToString("\n")
+                }
 
             return """
             rule $ruleName
-                 on = "${posInOccurence?.term}"
-                 formula = "${posInOccurence?.toplevelFormula}"
+                 on = "${posInOccurrence?.term}"
+                 formula = "${posInOccurrence?.toplevelFormula}"
                  $args;
             """.trimIndent()
         }
@@ -514,7 +503,7 @@ class RuleInteraction() : NodeInteraction() {
     }
 
     override fun reapplyStrict(uic: AbstractMediatorUserInterfaceControl, goal: Goal) {
-        val rh = RuleHelper(goal, ruleName!!, posInOccurence, arguments, ruleOccurence, true)
+        val rh = RuleHelper(goal, ruleName!!, posInOccurrence, arguments, ruleOccurrence, true)
         try {
             var theApp = rh.makeRuleApp()
             if (theApp is TacletApp) {
