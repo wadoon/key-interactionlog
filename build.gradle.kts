@@ -13,7 +13,7 @@ plugins {
     id("org.jetbrains.dokka") version "2.2.0"
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
     id("com.gradleup.shadow") version "9.6.1"
-    id("com.diffplug.spotless") version "8.9.0"
+    id("com.diffplug.spotless") version "8.10.1"
 }
 
 group = "io.github.wadoon.key"
@@ -46,7 +46,7 @@ dependencies {
     testImplementation("com.google.truth:truth:1.4.5")
     testImplementation("org.slf4j:slf4j-simple:2.0.18")
 
-    testImplementation(platform("org.junit:junit-bom:6.1.2"))
+    testImplementation(platform("org.junit:junit-bom:6.1.3"))
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
