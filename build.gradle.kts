@@ -5,15 +5,15 @@
 import java.net.URI
 
 plugins {
-    kotlin("jvm") version "2.4.10"
-    kotlin("plugin.serialization") version "2.4.10"
+    kotlin("jvm") version "2.4.21"
+    kotlin("plugin.serialization") version "2.4.21"
     `java-library`
     `maven-publish`
     signing
-    id("org.jetbrains.dokka") version "2.2.0"
+    id("org.jetbrains.dokka") version "2.3.0"
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
     id("com.gradleup.shadow") version "9.6.1"
-    id("com.diffplug.spotless") version "8.10.1"
+    id("com.diffplug.spotless") version "8.12.0"
 }
 
 group = "io.github.wadoon.key"
@@ -27,8 +27,8 @@ repositories {
 val keyVersion = System.getenv("KEY_VERSION") ?: "3.0.0"
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.4.10")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.13.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.4.21")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.8.0")
     // implementation("com.github.ajalt:clikt:2.8.0")
     // implementation("org.jetbrains:annotations:26.1.0")
@@ -39,12 +39,12 @@ dependencies {
 
     compileOnly("org.key-project:key.core:$keyVersion")
     compileOnly("org.key-project:key.ui:$keyVersion")
-    compileOnly("org.slf4j:slf4j-api:2.0.18")
+    compileOnly("org.slf4j:slf4j-api:2.0.20")
 
     testImplementation("org.key-project:key.core:$keyVersion")
     testImplementation("org.key-project:key.ui:$keyVersion")
     testImplementation("com.google.truth:truth:1.4.5")
-    testImplementation("org.slf4j:slf4j-simple:2.0.18")
+    testImplementation("org.slf4j:slf4j-simple:2.0.20")
 
     testImplementation(platform("org.junit:junit-bom:6.1.3"))
     testImplementation("org.junit.jupiter:junit-jupiter-api")
