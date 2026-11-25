@@ -119,8 +119,12 @@ nexusPublishing {
             snapshotRepositoryUrl = uri("https://central.sonatype.com/repository/maven-snapshots/")
 
             stagingProfileId.set("io.github.wadoon")
-            val user: String = project.findProperty("ossrhUsername")?.toString() ?: ""
-            val pwd: String = project.findProperty("ossrhPassword")?.toString() ?: ""
+            val user: String = project.findProperty("ossrhUsername")?.toString()
+                ?: System.getenv("MAVEN_USERNAME")
+                ?: ""
+            val pwd: String = project.findProperty("ossrhPassword")?.toString()
+                ?: System.getenv("MAVEN_PASSWORD")
+                ?: ""
 
             username.set(user)
             password.set(pwd)
@@ -129,7 +133,14 @@ nexusPublishing {
 }
 
 signing {
-    useGpgCmd()
+    val signingKey = System.getenv("GPG_PRIVATE_KEY")
+    if (signingKey.isNullOrBlank()) {
+        // Local builds sign with the GPG command line tool and its default key.
+        useGpgCmd()
+    } else {
+        // CI provides an armored private key and its passphrase via secrets.
+        useInMemoryPgpKeys(signingKey, System.getenv("GPG_PASSPHRASE"))
+    }
     sign(publishing.publications["mavenJava"])
 }
 
