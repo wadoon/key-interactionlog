@@ -177,7 +177,6 @@ class RuleHelper(
     fun findTacletApps(): List<TacletApp> {
         val filter = TacletPredicate(rulename)
         val index = goal.ruleAppIndex()
-        index.autoModeStopped()
         val allApps = ArrayList<TacletApp>()
 
         if (pio != null) {
